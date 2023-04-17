@@ -7,6 +7,7 @@ import com.sparta.board.repository.BoardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,7 +28,7 @@ public class BoardService {
     }
 
     public List<BoardResponseDto> getBoardList() {
-        return boardRepository.findAll().stream().map(BoardResponseDto::new).collect(Collectors.toList());
+        return boardRepository.findAll().stream().sorted(Comparator.comparing(Board::getCreatedAt).reversed()).map(BoardResponseDto::new).collect(Collectors.toList());
     }
 
     public BoardResponseDto getBoard( Long id){
@@ -39,22 +40,29 @@ public class BoardService {
     }
 
 
-    public BoardResponseDto updateBoard (String password,  BoardRequestDto requestDto) {
-        Board board = boardRepository.findByPassword(password).orElseThrow(
-                () -> new NullPointerException("선택한 게시물이 존재하지 않습니다.")
-        );
-
-        board.update(requestDto);
-
-        return new BoardResponseDto(board);
-    }
-
-    public String deleteBoard(Long id){
+    public BoardResponseDto updateBoard (Long id,  BoardRequestDto requestDto) {
         Board board = boardRepository.findById(id).orElseThrow(
                 () -> new NullPointerException("선택한 게시물이 존재하지 않습니다.")
         );
+        if(board.getPassword().equals(requestDto.getPassword())){
+            board.update(requestDto);
+            return new BoardResponseDto(board);
+        }
+        else {
+            return new BoardResponseDto();
+        }
+    }
 
-        boardRepository.delete(board);
-        return "게시물 삭제에 성공 했습니다.";
+    public String deleteBoard(Long id, BoardRequestDto requestDto){
+        Board board = boardRepository.findById(id).orElseThrow(
+                () -> new NullPointerException("선택한 게시물이 존재하지 않습니다.")
+        );
+        if(board.getPassword().equals(requestDto.getPassword())){
+            boardRepository.delete(board);
+            return "게시물 삭제에 성공 했습니다.";
+        }
+        else {
+            return "게시물 비밀번호가 틀렸습니다.";
+        }
     }
 }
