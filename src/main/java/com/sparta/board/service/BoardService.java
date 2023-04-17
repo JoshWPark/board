@@ -38,8 +38,9 @@ public class BoardService {
         return new BoardResponseDto(board);
     }
 
-    public BoardResponseDto updateBoard (Long id,  BoardRequestDto requestDto) {
-        Board board = boardRepository.findById(id).orElseThrow(
+
+    public BoardResponseDto updateBoard (String password,  BoardRequestDto requestDto) {
+        Board board = boardRepository.findByPassword(password).orElseThrow(
                 () -> new NullPointerException("선택한 게시물이 존재하지 않습니다.")
         );
 
