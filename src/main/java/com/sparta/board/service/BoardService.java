@@ -6,7 +6,6 @@ import com.sparta.board.entity.Board;
 import com.sparta.board.repository.BoardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,7 +53,7 @@ public class BoardService {
                 () -> new NullPointerException("선택한 게시물이 존재하지 않습니다.")
         );
 
-        boardRepository.delete(id);
+        boardRepository.delete(board);
         return "게시물 삭제에 성공 했습니다.";
     }
 }

@@ -30,7 +30,7 @@ public class BoardController {
         return boardService.getBoardList();
     }
 
-    @GetMapping("/{id}") // http://localhost:8080/course/{id}
+    @GetMapping("/{id}") // http://localhost:8080/board/{id}
     public BoardResponseDto getBoard(@PathVariable Long id){
         return boardService.getBoard(id);
     }
