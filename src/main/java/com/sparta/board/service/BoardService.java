@@ -6,6 +6,7 @@ import com.sparta.board.entity.Board;
 import com.sparta.board.repository.BoardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
@@ -21,17 +22,17 @@ public class BoardService {
         this.boardRepository = boardRepository;
     }
 
-    public String createBoard(BoardRequestDto requestDto){
+    public BoardResponseDto createBoard(BoardRequestDto requestDto){
         Board board = new Board(requestDto);
         boardRepository.save(board);
-        return "게시물 저장에 성공했습니다.";
+        return new BoardResponseDto(board);
     }
 
     public List<BoardResponseDto> getBoardList() {
-        return boardRepository.findAll().stream().sorted(Comparator.comparing(Board::getCreatedAt).reversed()).map(BoardResponseDto::new).collect(Collectors.toList());
+        return boardRepository.findAll().stream().sorted(Comparator.comparing(Board::getModifiedAt).reversed()).map(BoardResponseDto::new).collect(Collectors.toList());
     }
 
-    public BoardResponseDto getBoard( Long id){
+    public BoardResponseDto getBoard(Long id){
         Board board = boardRepository.findById(id).orElseThrow(
                 () -> new NullPointerException("선택한 게시물이 존재하지 않습니다.")
         );
@@ -39,7 +40,7 @@ public class BoardService {
         return new BoardResponseDto(board);
     }
 
-
+    @Transactional //추적하기
     public BoardResponseDto updateBoard (Long id,  BoardRequestDto requestDto) {
         Board board = boardRepository.findById(id).orElseThrow(
                 () -> new NullPointerException("선택한 게시물이 존재하지 않습니다.")

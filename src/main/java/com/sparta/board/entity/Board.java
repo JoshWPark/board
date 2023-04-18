@@ -5,9 +5,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-
 @Entity
 @Getter
 @NoArgsConstructor
@@ -15,13 +12,9 @@ public class Board extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false)
     private String title;
-    @Column(nullable = false)
     private String content;
-    @Column(nullable = false)
     private String author;
-    @Column(nullable = false)
     private String password;
 
     public Board(BoardRequestDto requestDto) {

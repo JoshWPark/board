@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+// Client <-Dto-> Controller <-Dto-> Service <-Dto-> Repository <-Entity-> DB
 
 @RestController
 @RequestMapping("/board")
@@ -21,7 +21,7 @@ public class BoardController {
     }
 
     @PostMapping("/create")
-    public String createBoard(@RequestBody BoardRequestDto requestDto){
+    public BoardResponseDto createBoard(@RequestBody BoardRequestDto requestDto){
         return boardService.createBoard(requestDto);
     }
 
@@ -37,7 +37,7 @@ public class BoardController {
 
     @PutMapping("/update/{id}")
     public BoardResponseDto updateBoard (@PathVariable Long id, @RequestBody BoardRequestDto requestDto) {
-        return boardService.updateBoard(id,requestDto);
+        return boardService.updateBoard(id, requestDto);
     }
 
     @DeleteMapping("/delete/{id}")
