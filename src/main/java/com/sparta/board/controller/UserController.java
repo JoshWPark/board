@@ -1,11 +1,10 @@
 package com.sparta.board.controller;
 
-import com.sparta.board.dto.LoginRequestDto;
-import com.sparta.board.dto.SignupRequestDto;
+import com.sparta.board.dto.AuthRequestDto;
+import com.sparta.board.dto.AuthResponseDto;
 import com.sparta.board.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,14 +15,12 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public String signup(@RequestBody SignupRequestDto signupRequestDto) {
-        return userService.signup(signupRequestDto);
+    public AuthResponseDto signup(@RequestBody AuthRequestDto authRequestDto) {
+        return userService.signup(authRequestDto);
     }
 
-//    @ResponseBody
-//    @PostMapping("/login")
-//    public String login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
-//        userService.login(loginRequestDto, response);
-//        return "success";
-//    }
+    @PostMapping("/login")
+    public AuthResponseDto login(@RequestBody AuthRequestDto authRequestDto, HttpServletResponse response) {
+        return userService.login(authRequestDto, response);
+    }
 }
