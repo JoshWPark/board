@@ -48,7 +48,7 @@ public class BoardService {
             );
 
             // 요청받은 DTO 로 DB에 저장할 객체 만들기
-            Board board = boardRepository.saveAndFlush(new Board(requestDto,user.getUsername()));
+            Board board = boardRepository.saveAndFlush(Board.of(requestDto, user.getUsername()));
 
             return new BoardResponseDto(board);
         } else {
