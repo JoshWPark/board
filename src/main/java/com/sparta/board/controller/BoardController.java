@@ -1,5 +1,6 @@
 package com.sparta.board.controller;
 
+import com.sparta.board.dto.AuthResponseDto;
 import com.sparta.board.dto.BoardRequestDto;
 import com.sparta.board.dto.BoardResponseDto;
 import com.sparta.board.service.BoardService;
@@ -37,16 +38,16 @@ public class BoardController {
     }
 
     //게시물 수정
-//    @PutMapping("/post/{id}")
-//    public BoardResponseDto updateBoard (@PathVariable Long id, @RequestBody BoardRequestDto requestDto) {
-//        return boardService.updateBoard(id, requestDto);
-//    }
+    @PutMapping("/post/{id}")
+    public BoardResponseDto updateBoard (@PathVariable Long id, @RequestBody BoardRequestDto requestDto, HttpServletRequest request) {
+        return boardService.updateBoard(id, requestDto, request);
+    }
 
     //게시물 삭제
-//    @DeleteMapping("/post/{id}")
-//    public String deleteBoard(@PathVariable Long id, @RequestBody BoardRequestDto requestDto){
-//        return boardService.deleteBoard(id, requestDto);
-//    }
+    @DeleteMapping("/post/{id}")
+    public AuthResponseDto deleteBoard(@PathVariable Long id, HttpServletRequest request){
+        return boardService.deleteBoard(id, request);
+    }
 
 
 }

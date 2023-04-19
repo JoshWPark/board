@@ -1,5 +1,6 @@
 package com.sparta.board.service;
 
+import com.sparta.board.dto.AuthResponseDto;
 import com.sparta.board.dto.BoardRequestDto;
 import com.sparta.board.dto.BoardResponseDto;
 import com.sparta.board.entity.Board;
@@ -32,7 +33,7 @@ public class BoardService {
         String token = jwtUtil.resolveToken(request);
         Claims claims;
 
-        // 토큰이 있는 경우에만 관심상품 추가 가능
+        // 토큰이 있는 경우에만 게시물 추가 가능
         if (token != null) {
             if (jwtUtil.validateToken(token)) {
                 // 토큰에서 사용자 정보 가져오기
@@ -73,31 +74,74 @@ public class BoardService {
     }
 
     // 게시물 수정
-//    @Transactional //추적하기
-//    public BoardResponseDto updateBoard (Long id,  BoardRequestDto requestDto) {
-//        Board board = boardRepository.findById(id).orElseThrow(
-//                () -> new NullPointerException("선택한 게시물이 존재하지 않습니다.")
-//        );
-//        if(board.getPassword().equals(requestDto.getPassword())){
-//            board.update(requestDto);
-//            return new BoardResponseDto(board);
-//        }
-//        else {
-//            return new BoardResponseDto();
-//        }
-//    }
+    @Transactional
+    public BoardResponseDto updateBoard (Long id,  BoardRequestDto requestDto,  HttpServletRequest request) {
+        // Request에서 Token 가져오기
+        String token = jwtUtil.resolveToken(request);
+        Claims claims;
+
+        // 토큰이 있는 경우에만 게시물 수정 가능
+        if (token != null) {
+            // Token 검증
+            if (jwtUtil.validateToken(token)) {
+                // 토큰에서 사용자 정보 가져오기
+                claims = jwtUtil.getUserInfoFromToken(token);
+            } else {
+                throw new IllegalArgumentException("Token Error");
+            }
+
+            // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회
+            User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
+                    () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
+            );
+
+            Board board = boardRepository.findByIdAndUsername(id, user.getUsername()).orElseThrow(
+                    () -> new NullPointerException("해당 게시물은 존재하지 않거나 작성자가 다릅니다.")
+            );
+
+            board.update(requestDto);
+
+            return new BoardResponseDto(board);
+
+        } else {
+            return null;
+        }
+
+
+    }
 
     //게시물 삭제
-//    public String deleteBoard(Long id, BoardRequestDto requestDto){
-//        Board board = boardRepository.findById(id).orElseThrow(
-//                () -> new NullPointerException("선택한 게시물이 존재하지 않습니다.")
-//        );
-//        if(board.getPassword().equals(requestDto.getPassword())){
-//            boardRepository.delete(board);
-//            return "게시물 삭제에 성공 했습니다.";
-//        }
-//        else {
-//            return "게시물 비밀번호가 틀렸습니다.";
-//        }
-//    }
+    public AuthResponseDto deleteBoard(Long id, HttpServletRequest request){
+        // Request에서 Token 가져오기
+        String token = jwtUtil.resolveToken(request);
+        Claims claims;
+
+        // 토큰이 있는 경우에만 게시물 삭제 가능
+        if (token != null) {
+            // Token 검증
+            if (jwtUtil.validateToken(token)) {
+                // 토큰에서 사용자 정보 가져오기
+                claims = jwtUtil.getUserInfoFromToken(token);
+            } else {
+                throw new IllegalArgumentException("Token Error");
+            }
+
+            // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회
+            User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
+                    () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
+            );
+
+            Board board = boardRepository.findByIdAndUsername(id, user.getUsername()).orElseThrow(
+                    () -> new NullPointerException("해당 게시물은 존재하지 않거나 작성자가 다릅니다.")
+            );
+
+            boardRepository.delete(board);
+
+            return new AuthResponseDto("게시글 삭제 성공", 200);
+
+        } else {
+            return null;
+        }
+
+    }
 }
