@@ -12,21 +12,21 @@ public class Board extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false)
     private String title;
+    @Column(nullable = false)
     private String content;
-    private String author;
-    private String password;
+    @Column(nullable = false)
+    private String username;
 
-    public Board(BoardRequestDto requestDto) {
+    public Board(BoardRequestDto requestDto, String username) {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
-        this.author = requestDto.getAuthor();
-        this.password = requestDto.getPassword();
+        this.username = username;
     }
 
     public void update(BoardRequestDto requestDto) {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
-        this.author = requestDto.getAuthor();
     }
 }
