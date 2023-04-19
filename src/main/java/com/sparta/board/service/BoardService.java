@@ -4,6 +4,7 @@ import com.sparta.board.dto.BoardRequestDto;
 import com.sparta.board.dto.BoardResponseDto;
 import com.sparta.board.entity.Board;
 import com.sparta.board.repository.BoardRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,14 +14,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class BoardService {
 
     private final BoardRepository boardRepository;
 
-    @Autowired
-    public BoardService(BoardRepository boardRepository){
-        this.boardRepository = boardRepository;
-    }
 
     public BoardResponseDto createBoard(BoardRequestDto requestDto){
         Board board = new Board(requestDto);

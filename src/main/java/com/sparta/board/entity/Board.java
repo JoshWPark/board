@@ -19,14 +19,14 @@ public class Board extends Timestamped {
 
     public Board(BoardRequestDto requestDto) {
         this.title = requestDto.getTitle();
-        this.content = requestDto.getMessage();
+        this.content = requestDto.getContent();
         this.author = requestDto.getAuthor();
         this.password = requestDto.getPassword();
     }
 
     public void update(BoardRequestDto requestDto) {
         this.title = requestDto.getTitle();
-        this.content = requestDto.getMessage();
+        this.content = requestDto.getContent();
         this.author = requestDto.getAuthor();
     }
 }

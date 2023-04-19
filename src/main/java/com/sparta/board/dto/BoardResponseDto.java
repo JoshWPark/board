@@ -12,7 +12,7 @@ public class BoardResponseDto {
     private Long id;
     private String author;
     private String title;
-    private String message;
+    private String content;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -20,7 +20,7 @@ public class BoardResponseDto {
         this.id = board.getId();
         this.author = board.getAuthor();
         this.title = board.getTitle();
-        this.message = board.getContent();
+        this.content = board.getContent();
         this.createdAt = board.getCreatedAt();
         this.modifiedAt = board.getModifiedAt();
     }
