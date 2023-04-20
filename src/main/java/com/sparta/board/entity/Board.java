@@ -19,6 +19,7 @@ public class Board extends Timestamped {
     @Column(nullable = false)
     private String username;
 
+
     private Board(String title, String content, String username) {
         this.title = title;
         this.content = content;

@@ -6,13 +6,10 @@ import com.sparta.board.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.validation.ObjectError;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,12 +25,12 @@ public class UserController {
 
     //username 과 password 특정 패턴인지 확인
     @PostMapping("/signup")
-    public AuthResponseDto signup(@Valid @RequestBody  AuthRequestDto authRequestDto) {
-        return userService.signup(authRequestDto);
+    public AuthResponseDto signup(@Valid @RequestBody AuthRequestDto requestDto) {
+        return userService.signup(requestDto);
     }
 
     @PostMapping("/login")
-    public AuthResponseDto login(@RequestBody AuthRequestDto authRequestDto, HttpServletResponse response) {
-        return userService.login(authRequestDto, response);
+    public AuthResponseDto login(@RequestBody AuthRequestDto requestDto, HttpServletResponse response) {
+        return userService.login(requestDto, response);
     }
 }

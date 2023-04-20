@@ -6,7 +6,6 @@ import com.sparta.board.dto.BoardResponseDto;
 import com.sparta.board.service.BoardService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
