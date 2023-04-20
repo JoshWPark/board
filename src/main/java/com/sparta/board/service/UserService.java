@@ -6,9 +6,11 @@ import com.sparta.board.entity.User;
 import com.sparta.board.jwt.JwtUtil;
 import com.sparta.board.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.Optional;
 
@@ -20,27 +22,23 @@ public class UserService {
     private final JwtUtil jwtUtil;
 
     @Transactional
-    public AuthResponseDto signup(AuthRequestDto authRequestDt) {
-        String username = authRequestDt.getUsername();
-        String password = authRequestDt.getPassword();
-
+    public AuthResponseDto signup(AuthRequestDto requestDto) {
         // 회원 중복 확인
-        Optional<User> found = userRepository.findByUsername(username);
+        Optional<User> found = userRepository.findByUsername(requestDto.getUsername());
         if (found.isPresent()) {
             throw new IllegalArgumentException("중복된 사용자가 존재합니다.");
         }
 
-            // 정규표현식 확인
-        User user = new User(username, password);
-        userRepository.save(user);
+        // 사용자 DB에 저장
+        userRepository.saveAndFlush(User.saveUser(requestDto));
 
         return new AuthResponseDto("회원가입 성공", 200);
     }
 
     @Transactional(readOnly = true)
-    public AuthResponseDto login(AuthRequestDto authRequestDto, HttpServletResponse response) {
-        String username = authRequestDto.getUsername();
-        String password = authRequestDto.getPassword();
+    public AuthResponseDto login(AuthRequestDto requestDto, HttpServletResponse response) {
+        String username = requestDto.getUsername();
+        String password = requestDto.getPassword();
 
         // 사용자 확인
         User user = userRepository.findByUsername(username).orElseThrow(

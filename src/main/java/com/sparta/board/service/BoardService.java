@@ -28,6 +28,7 @@ public class BoardService {
     private final JwtUtil jwtUtil;
 
     //게시물 생성
+    @Transactional
     public BoardResponseDto createBoard(BoardRequestDto requestDto, HttpServletRequest request){
         // Request에서 Token 가져오기
         String token = jwtUtil.resolveToken(request);
@@ -48,7 +49,7 @@ public class BoardService {
             );
 
             // 요청받은 DTO 로 DB에 저장할 객체 만들기
-            Board board = boardRepository.saveAndFlush(Board.of(requestDto, user.getUsername()));
+            Board board = boardRepository.saveAndFlush(Board.saveBoard(requestDto, user.getUsername()));
 
             return new BoardResponseDto(board);
         } else {
@@ -99,7 +100,7 @@ public class BoardService {
                     () -> new NullPointerException("해당 게시물은 존재하지 않거나 작성자가 다릅니다.")
             );
 
-            board.update(requestDto);
+            board.updateBoard(requestDto);
 
             return new BoardResponseDto(board);
 
@@ -111,6 +112,7 @@ public class BoardService {
     }
 
     //게시물 삭제
+    @Transactional
     public AuthResponseDto deleteBoard(Long id, HttpServletRequest request){
         // Request에서 Token 가져오기
         String token = jwtUtil.resolveToken(request);

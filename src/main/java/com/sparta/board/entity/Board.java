@@ -25,12 +25,16 @@ public class Board extends Timestamped {
         this.username = username;
     }
 
-    public static Board of(BoardRequestDto requestDto, String username){
+    public static Board saveBoard(BoardRequestDto requestDto, String username){
         return new Board(requestDto.getTitle(),requestDto.getContent(),username);
     }
 
-    public void update(BoardRequestDto requestDto) {
-        this.title = requestDto.getTitle();
-        this.content = requestDto.getContent();
+    private void update(String title, String content){
+        this.title = title;
+        this.content = content;
+    }
+
+    public void updateBoard(BoardRequestDto requestDto) {
+        update(requestDto.getTitle(), requestDto.getContent());
     }
 }
