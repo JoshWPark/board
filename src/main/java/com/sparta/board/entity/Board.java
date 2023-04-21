@@ -26,8 +26,8 @@ public class Board extends Timestamped {
         this.username = username;
     }
 
-    public static Board saveBoard(BoardRequestDto requestDto, String username){
-        return new Board(requestDto.getTitle(),requestDto.getContent(),username);
+    public static Board saveBoard(BoardRequestDto requestDto, User user){
+        return new Board(requestDto.getTitle(),requestDto.getContent(),user.getUsername());
     }
 
     private void update(String title, String content){
