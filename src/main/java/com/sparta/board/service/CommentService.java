@@ -1,7 +1,9 @@
 package com.sparta.board.service;
 
+import com.sparta.board.dto.BoardRequestDto;
 import com.sparta.board.dto.CommentRequestDto;
 import com.sparta.board.dto.CommentResponseDto;
+import com.sparta.board.dto.StatusResponseDto;
 import com.sparta.board.entity.Board;
 import com.sparta.board.entity.Comment;
 import com.sparta.board.entity.StatusErrorMessageEnum;
@@ -61,8 +63,72 @@ public class CommentService {
         } else {
             throw new NullPointerException(StatusErrorMessageEnum.TOKEN_ERROR.getMessage());
         }
+    }
+    @Transactional
+    public CommentResponseDto updateComment(Long id, BoardRequestDto requestDto, HttpServletRequest request) {
+        // Request에서 Token 가져오기
+        String token = jwtUtil.resolveToken(request);
+        Claims claims;
 
+        // 토큰이 있는 경우에만 게시물 수정 가능
+        if (token != null) {
+            // Token 검증
+            if (jwtUtil.validateToken(token)) {
+                // 토큰에서 사용자 정보 가져오기
+                claims = jwtUtil.getUserInfoFromToken(token);
+            } else {
+                throw new IllegalArgumentException(StatusErrorMessageEnum.TOKEN_ERROR.getMessage());
+            }
 
+            // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회
+            User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
+                    () -> new IllegalArgumentException(StatusErrorMessageEnum.USER_NOT_EXIST.getMessage())
+            );
 
+            Comment comment = commentRepository.findByIdAndUsername(id, user.getUsername()).orElseThrow(
+                    () -> new NullPointerException(StatusErrorMessageEnum.COMMENT_NOT_EXIST_OR_WRONG_USER.getMessage())
+            );
+
+            comment.updateComment(requestDto);
+
+            return new CommentResponseDto(comment);
+
+        } else {
+            return null;
+        }
+    }
+
+    @Transactional
+    public StatusResponseDto deleteComment(Long id, HttpServletRequest request) {
+        // Request에서 Token 가져오기
+        String token = jwtUtil.resolveToken(request);
+        Claims claims;
+
+        // 토큰이 있는 경우에만 게시물 수정 가능
+        if (token != null) {
+            // Token 검증
+            if (jwtUtil.validateToken(token)) {
+                // 토큰에서 사용자 정보 가져오기
+                claims = jwtUtil.getUserInfoFromToken(token);
+            } else {
+                throw new IllegalArgumentException(StatusErrorMessageEnum.TOKEN_ERROR.getMessage());
+            }
+
+            // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회
+            User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
+                    () -> new IllegalArgumentException(StatusErrorMessageEnum.USER_NOT_EXIST.getMessage())
+            );
+
+            Comment comment = commentRepository.findByIdAndUsername(id, user.getUsername()).orElseThrow(
+                    () -> new NullPointerException(StatusErrorMessageEnum.COMMENT_NOT_EXIST_OR_WRONG_USER.getMessage())
+            );
+
+            commentRepository.delete(comment);
+
+            return new StatusResponseDto(StatusErrorMessageEnum.DELETE_COMMENT.getMessage(), 200);
+
+        } else {
+            return null;
+        }
     }
 }

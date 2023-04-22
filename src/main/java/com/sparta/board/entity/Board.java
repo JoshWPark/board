@@ -25,7 +25,6 @@ public class Board extends Timestamped {
     @OneToMany
     private List<Comment> commentList = new ArrayList<>();
 
-
     private Board(String title, String content, User author) {
         this.title = title;
         this.content = content;
