@@ -20,4 +20,9 @@ public class GlobalExceptionHandler{
         return new StatusResponseDto(e.getMessage(),400);
     }
 
+    @ExceptionHandler(Exception.class)
+    public StatusResponseDto methodError(Exception e){
+        return new StatusResponseDto(e.getMessage(),405);
+    }
+
 }
