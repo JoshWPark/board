@@ -14,21 +14,10 @@ public class GlobalExceptionHandler{
     public StatusResponseDto signupError(MethodArgumentNotValidException e){
         return new StatusResponseDto(Objects.requireNonNull(e.getFieldError()).getDefaultMessage(),400);
     }
-//
-//    @ExceptionHandler(IllegalArgumentException.class)
-//    public StatusResponseDto tokenError(IllegalArgumentException e){
-//        return new StatusResponseDto(e.getMessage(),400);
-//    }
-//
-//    @ExceptionHandler(NullPointerException.class)
-//    public StatusResponseDto nullError(NullPointerException e){
-//        return new StatusResponseDto(e.getMessage(),400);
-//    }
 
     @ExceptionHandler(RuntimeException.class)
     public StatusResponseDto runtimeError(RuntimeException e){
         return new StatusResponseDto(e.getMessage(),400);
     }
-
 
 }

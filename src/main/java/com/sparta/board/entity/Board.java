@@ -16,18 +16,20 @@ public class Board extends Timestamped {
     private String title;
     @Column(nullable = false)
     private String content;
-    @Column(nullable = false)
-    private String username;
+    @ManyToOne
+    @JoinColumn(name = "USER_ID", nullable = false)
+    private User user;
 
 
-    private Board(String title, String content, String username) {
+
+    private Board(String title, String content, User author) {
         this.title = title;
         this.content = content;
-        this.username = username;
+        this.user = author;
     }
 
     public static Board saveBoard(BoardRequestDto requestDto, User user){
-        return new Board(requestDto.getTitle(),requestDto.getContent(),user.getUsername());
+        return new Board(requestDto.getTitle(),requestDto.getContent(), user);
     }
 
     private void update(String title, String content){

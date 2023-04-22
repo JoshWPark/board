@@ -1,9 +1,10 @@
 package com.sparta.board.service;
 
-import com.sparta.board.dto.StatusResponseDto;
 import com.sparta.board.dto.BoardRequestDto;
 import com.sparta.board.dto.BoardResponseDto;
+import com.sparta.board.dto.StatusResponseDto;
 import com.sparta.board.entity.Board;
+import com.sparta.board.entity.StatusErrorMessageEnum;
 import com.sparta.board.entity.User;
 import com.sparta.board.jwt.JwtUtil;
 import com.sparta.board.repository.BoardRepository;
@@ -40,12 +41,12 @@ public class BoardService {
                 // 토큰에서 사용자 정보 가져오기
                 claims = jwtUtil.getUserInfoFromToken(token);
             } else {
-                throw new IllegalArgumentException("Token Error");
+                throw new IllegalArgumentException(StatusErrorMessageEnum.TOKEN_ERROR.getMessage());
             }
 
             // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회
             User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                    () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
+                    () -> new IllegalArgumentException(StatusErrorMessageEnum.USER_NOT_EXIST.getMessage())
             );
 
             // 요청받은 DTO 로 DB에 저장할 객체 만들기
@@ -53,22 +54,21 @@ public class BoardService {
 
             return new BoardResponseDto(board);
         } else {
-            return null;
+            throw new NullPointerException(StatusErrorMessageEnum.TOKEN_ERROR.getMessage());
         }
-
     }
 
 
 
     // 전체 게시물 조회
     public List<BoardResponseDto> getBoardList() {
-        return boardRepository.findAll().stream().sorted(Comparator.comparing(Board::getModifiedAt).reversed()).map(BoardResponseDto::new).collect(Collectors.toList());
+        return boardRepository.findAll().stream().sorted(Comparator.comparing(Board::getCreatedAt).reversed()).map(BoardResponseDto::new).collect(Collectors.toList());
     }
 
     //특정 게시물 조회
     public BoardResponseDto getBoard(Long id){
         Board board = boardRepository.findById(id).orElseThrow(
-                () -> new NullPointerException("선택한 게시물이 존재하지 않습니다.")
+                () -> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST.getMessage())
         );
 
         return new BoardResponseDto(board);
@@ -88,16 +88,16 @@ public class BoardService {
                 // 토큰에서 사용자 정보 가져오기
                 claims = jwtUtil.getUserInfoFromToken(token);
             } else {
-                throw new IllegalArgumentException("Token Error");
+                throw new IllegalArgumentException(StatusErrorMessageEnum.TOKEN_ERROR.getMessage());
             }
 
             // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회
             User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                    () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
+                    () -> new IllegalArgumentException(StatusErrorMessageEnum.USER_NOT_EXIST.getMessage())
             );
 
-            Board board = boardRepository.findByIdAndUsername(id, user.getUsername()).orElseThrow(
-                    () -> new NullPointerException("해당 게시물은 존재하지 않거나 작성자가 다릅니다.")
+            Board board = boardRepository.findByIdAndUser(id, user).orElseThrow(
+                    () -> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST_OR_WRONG_USER.getMessage())
             );
 
             board.updateBoard(requestDto);
@@ -125,21 +125,21 @@ public class BoardService {
                 // 토큰에서 사용자 정보 가져오기
                 claims = jwtUtil.getUserInfoFromToken(token);
             } else {
-                throw new IllegalArgumentException("Token Error");
+                throw new IllegalArgumentException(StatusErrorMessageEnum.TOKEN_ERROR.getMessage());
             }
 
             // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회
             User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                    () -> new NullPointerException("사용자가 존재하지 않습니다.")
+                    () -> new NullPointerException(StatusErrorMessageEnum.USER_NOT_EXIST.getMessage())
             );
 
-            Board board = boardRepository.findByIdAndUsername(id, user.getUsername()).orElseThrow(
-                    () -> new NullPointerException("해당 게시물은 존재하지 않거나 작성자가 다릅니다.")
+            Board board = boardRepository.findByIdAndUser(id, user).orElseThrow(
+                    () -> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST_OR_WRONG_USER.getMessage())
             );
 
             boardRepository.delete(board);
 
-            return new StatusResponseDto("게시글 삭제 성공", 200);
+            return new StatusResponseDto(StatusErrorMessageEnum.DELETE_BOARD.getMessage(), 200);
 
         } else {
             return null;

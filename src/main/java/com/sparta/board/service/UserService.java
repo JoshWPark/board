@@ -2,6 +2,7 @@ package com.sparta.board.service;
 
 import com.sparta.board.dto.AuthRequestDto;
 import com.sparta.board.dto.StatusResponseDto;
+import com.sparta.board.entity.StatusErrorMessageEnum;
 import com.sparta.board.entity.User;
 import com.sparta.board.entity.UserRoleEnum;
 import com.sparta.board.jwt.JwtUtil;
@@ -26,32 +27,32 @@ public class UserService {
         // 회원 중복 확인
         Optional<User> found = userRepository.findByUsername(requestDto.getUsername());
         if (found.isPresent()) {
-            throw new IllegalArgumentException("중복된 사용자가 존재합니다.");
+            throw new IllegalArgumentException(StatusErrorMessageEnum.USER_EXIST.getMessage());
         }
 
         // 사용자 ROLE 확인
         UserRoleEnum role = (requestDto.isAdmin()) ? UserRoleEnum.ADMIN : UserRoleEnum.USER;
         if (!requestDto.getAdminToken().equals(ADMIN_TOKEN)) {
-            throw new IllegalArgumentException("관리자 암호가 틀려 등록이 불가능합니다.");
+            throw new IllegalArgumentException(StatusErrorMessageEnum.WRONG_ADMIN_KEY.getMessage());
         }
         // 사용자 DB에 저장
         userRepository.saveAndFlush(User.saveUser(requestDto,role));
 
-        return new StatusResponseDto("회원가입 성공", 200);
+        return new StatusResponseDto(StatusErrorMessageEnum.SUCCESS_SIGNUP.getMessage(), 200);
     }
 
     @Transactional(readOnly = true)
     public StatusResponseDto login(AuthRequestDto requestDto, HttpServletResponse response) {
         // 사용자 확인
         User user = userRepository.findByUsername(requestDto.getUsername()).orElseThrow(
-                () -> new NullPointerException("등록된 사용자가 없습니다.")
+                () -> new NullPointerException(StatusErrorMessageEnum.USER_NOT_EXIST.getMessage())
         );
         // 비밀번호 확인
         if(!user.getPassword().equals(requestDto.getPassword())){
-            throw  new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw  new IllegalArgumentException(StatusErrorMessageEnum.WRONG_PASSWORD.getMessage());
         }
 
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUsername(), user.getRole()));
-        return new StatusResponseDto("로그인 성공", 200);
+        return new StatusResponseDto(StatusErrorMessageEnum.SUCCESS_LOGIN.getMessage(), 200);
     }
 }

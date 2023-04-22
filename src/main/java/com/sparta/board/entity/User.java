@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity(name = "users")
+@Entity(name = "Users")
 @Getter
 @NoArgsConstructor
 public class User {
@@ -19,8 +19,6 @@ public class User {
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
-
-
 
 
     private User(String username, String password, UserRoleEnum role) {
