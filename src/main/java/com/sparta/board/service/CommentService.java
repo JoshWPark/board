@@ -4,10 +4,7 @@ import com.sparta.board.dto.BasicResponseDto;
 import com.sparta.board.dto.board.BoardRequestDto;
 import com.sparta.board.dto.comment.CommentRequestDto;
 import com.sparta.board.dto.comment.CommentResponseDto;
-import com.sparta.board.entity.Board;
-import com.sparta.board.entity.Comment;
-import com.sparta.board.entity.StatusErrorMessageEnum;
-import com.sparta.board.entity.User;
+import com.sparta.board.entity.*;
 import com.sparta.board.jwt.JwtUtil;
 import com.sparta.board.repository.BoardRepository;
 import com.sparta.board.repository.CommentRepository;
@@ -85,9 +82,18 @@ public class CommentService {
                     () -> new IllegalArgumentException(StatusErrorMessageEnum.USER_NOT_EXIST.getMessage())
             );
 
-            Comment comment = commentRepository.findByIdAndUser(id, user).orElseThrow(
-                    () -> new NullPointerException(StatusErrorMessageEnum.COMMENT_NOT_EXIST_OR_WRONG_USER.getMessage())
-            );
+            Comment comment;
+            UserRoleEnum userRoleEnum = user.getRole();
+            if(userRoleEnum.equals(UserRoleEnum.USER)){
+                comment = commentRepository.findByIdAndUser(id, user).orElseThrow(
+                        () -> new NullPointerException(StatusErrorMessageEnum.COMMENT_NOT_EXIST_OR_WRONG_USER.getMessage())
+                );
+            }
+            else {
+                comment = commentRepository.findById(id).orElseThrow(
+                        ()-> new NullPointerException(StatusErrorMessageEnum.COMMENT_NOT_EXIST.getMessage())
+                );
+            }
 
             comment.updateComment(requestDto);
 
@@ -119,9 +125,18 @@ public class CommentService {
                     () -> new IllegalArgumentException(StatusErrorMessageEnum.USER_NOT_EXIST.getMessage())
             );
 
-            Comment comment = commentRepository.findByIdAndUser(id, user).orElseThrow(
-                    () -> new NullPointerException(StatusErrorMessageEnum.COMMENT_NOT_EXIST_OR_WRONG_USER.getMessage())
-            );
+            Comment comment;
+            UserRoleEnum userRoleEnum = user.getRole();
+            if(userRoleEnum.equals(UserRoleEnum.USER)){
+                comment = commentRepository.findByIdAndUser(id, user).orElseThrow(
+                        () -> new NullPointerException(StatusErrorMessageEnum.COMMENT_NOT_EXIST_OR_WRONG_USER.getMessage())
+                );
+            }
+            else {
+                comment = commentRepository.findById(id).orElseThrow(
+                        ()-> new NullPointerException(StatusErrorMessageEnum.COMMENT_NOT_EXIST.getMessage())
+                );
+            }
 
             commentRepository.delete(comment);
 

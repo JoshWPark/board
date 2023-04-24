@@ -7,7 +7,7 @@ public enum StatusErrorMessageEnum {
     CREATE_BOARD("게시물 생성 성공"),
     GET_ALL_BOARD("전체 게시물 조회 성공"),
     GET_BOARD("게시물 조회 성공"),
-    UPDATE_BOARD("게시뭏 수정 성공"),
+    UPDATE_BOARD("게시물 수정 성공"),
     DELETE_BOARD("게시물 삭제 성공"),
     CREATE_COMMENT("댓글 생성 성공"),
     UPDATE_COMMENT("댓글 수정 성공"),
@@ -20,6 +20,7 @@ public enum StatusErrorMessageEnum {
     WRONG_PASSWORD("회원을 찾을 수 없습니다"),
     BOARD_NOT_EXIST("해당 게시물은 존재하지 않습니다."),
     BOARD_NOT_EXIST_OR_WRONG_USER("해당 게시물이 존재하지 않거나 작성자만 삭제 / 수정 할 수 있습니다."),
+    COMMENT_NOT_EXIST("해당 댓글은 존재하지 않습니다."),
     COMMENT_NOT_EXIST_OR_WRONG_USER("해당 댓글이 존재하지 않거나 작성자만 삭제 / 수정 할 수 있습니다.");
 
 

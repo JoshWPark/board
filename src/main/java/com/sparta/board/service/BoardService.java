@@ -6,6 +6,7 @@ import com.sparta.board.dto.board.BoardResponseDto;
 import com.sparta.board.entity.Board;
 import com.sparta.board.entity.StatusErrorMessageEnum;
 import com.sparta.board.entity.User;
+import com.sparta.board.entity.UserRoleEnum;
 import com.sparta.board.jwt.JwtUtil;
 import com.sparta.board.repository.BoardRepository;
 import com.sparta.board.repository.UserRepository;
@@ -96,9 +97,18 @@ public class BoardService {
                     () -> new IllegalArgumentException(StatusErrorMessageEnum.USER_NOT_EXIST.getMessage())
             );
 
-            Board board = boardRepository.findByIdAndUser(id, user).orElseThrow(
-                    () -> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST_OR_WRONG_USER.getMessage())
-            );
+            Board board;
+            UserRoleEnum userRoleEnum = user.getRole();
+            if(userRoleEnum.equals(UserRoleEnum.USER)){
+                board = boardRepository.findByIdAndUser(id, user).orElseThrow(
+                        () -> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST_OR_WRONG_USER.getMessage())
+                );
+            }
+            else {
+                board = boardRepository.findById(id).orElseThrow(
+                        ()-> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST.getMessage())
+                );
+            }
 
             board.updateBoard(requestDto);
 
@@ -133,9 +143,18 @@ public class BoardService {
                     () -> new NullPointerException(StatusErrorMessageEnum.USER_NOT_EXIST.getMessage())
             );
 
-            Board board = boardRepository.findByIdAndUser(id, user).orElseThrow(
-                    () -> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST_OR_WRONG_USER.getMessage())
-            );
+            Board board;
+            UserRoleEnum userRoleEnum = user.getRole();
+            if(userRoleEnum.equals(UserRoleEnum.USER)){
+                board = boardRepository.findByIdAndUser(id, user).orElseThrow(
+                        () -> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST_OR_WRONG_USER.getMessage())
+                );
+            }
+            else {
+                board = boardRepository.findById(id).orElseThrow(
+                        ()-> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST.getMessage())
+                );
+            }
 
             boardRepository.delete(board);
 
