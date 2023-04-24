@@ -13,7 +13,7 @@ public class GlobalExceptionHandler{
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public BasicResponseDto signupError(MethodArgumentNotValidException e){
-        return BasicResponseDto.setBadRequest(Objects.requireNonNull(e.getFieldError()).getDefaultMessage(), StatusCode.BAD_REQUEST);
+        return BasicResponseDto.setBadRequest(Objects.requireNonNull(e.getFieldError()).getDefaultMessage(), StatusCode.NOT_ACCEPTABLE);
     }
 
     @ExceptionHandler(RuntimeException.class)
@@ -23,7 +23,7 @@ public class GlobalExceptionHandler{
 
     @ExceptionHandler(Exception.class)
     public BasicResponseDto methodError(Exception e){
-        return BasicResponseDto.setBadRequest(e.getMessage(),StatusCode.INTERNAL_SERVER_ERROR);
+        return BasicResponseDto.setBadRequest(e.getMessage(),StatusCode.METHOD_NOT_ALLOWED);
     }
 
 }
