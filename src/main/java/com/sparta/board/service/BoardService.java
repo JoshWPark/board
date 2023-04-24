@@ -1,8 +1,8 @@
 package com.sparta.board.service;
 
-import com.sparta.board.dto.BoardRequestDto;
-import com.sparta.board.dto.BoardResponseDto;
-import com.sparta.board.dto.StatusResponseDto;
+import com.sparta.board.dto.BasicResponseDto;
+import com.sparta.board.dto.board.BoardRequestDto;
+import com.sparta.board.dto.board.BoardResponseDto;
 import com.sparta.board.entity.Board;
 import com.sparta.board.entity.StatusErrorMessageEnum;
 import com.sparta.board.entity.User;
@@ -16,8 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +27,7 @@ public class BoardService {
 
     //게시물 생성
     @Transactional
-    public BoardResponseDto createBoard(BoardRequestDto requestDto, HttpServletRequest request){
+    public BasicResponseDto createBoard(BoardRequestDto requestDto, HttpServletRequest request){
         // Request에서 Token 가져오기
         String token = jwtUtil.resolveToken(request);
         Claims claims;
@@ -52,7 +50,7 @@ public class BoardService {
             // 요청받은 DTO 로 DB에 저장할 객체 만들기
             Board board = boardRepository.saveAndFlush(Board.saveBoard(requestDto, user));
 
-            return new BoardResponseDto(board);
+            return BasicResponseDto.setSuccess(StatusErrorMessageEnum.CREATE_BOARD.getMessage(),new BoardResponseDto(board));
         } else {
             throw new NullPointerException(StatusErrorMessageEnum.TOKEN_ERROR.getMessage());
         }
@@ -61,22 +59,24 @@ public class BoardService {
 
 
     // 전체 게시물 조회
-    public List<BoardResponseDto> getBoardList() {
-        return boardRepository.findAll().stream().sorted(Comparator.comparing(Board::getCreatedAt).reversed()).map(BoardResponseDto::new).collect(Collectors.toList());
+    public BasicResponseDto getBoardList() {
+        return BasicResponseDto.setSuccess(StatusErrorMessageEnum.GET_ALL_BOARD.getMessage(),
+                boardRepository.findAll().stream().sorted(Comparator.comparing(Board::getCreatedAt).reversed()).map(BoardResponseDto::new).toList()
+        );
     }
 
     //특정 게시물 조회
-    public BoardResponseDto getBoard(Long id){
+    public BasicResponseDto getBoard(Long id){
         Board board = boardRepository.findById(id).orElseThrow(
                 () -> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST.getMessage())
         );
 
-        return new BoardResponseDto(board);
+        return BasicResponseDto.setSuccess(StatusErrorMessageEnum.GET_BOARD.getMessage(), new BoardResponseDto(board));
     }
 
     // 게시물 수정
     @Transactional
-    public BoardResponseDto updateBoard (Long id,  BoardRequestDto requestDto,  HttpServletRequest request) {
+    public BasicResponseDto updateBoard (Long id,  BoardRequestDto requestDto,  HttpServletRequest request) {
         // Request에서 Token 가져오기
         String token = jwtUtil.resolveToken(request);
         Claims claims;
@@ -102,7 +102,7 @@ public class BoardService {
 
             board.updateBoard(requestDto);
 
-            return new BoardResponseDto(board);
+            return BasicResponseDto.setSuccess(StatusErrorMessageEnum.UPDATE_BOARD.getMessage(),new BoardResponseDto(board));
 
         } else {
             return null;
@@ -113,7 +113,7 @@ public class BoardService {
 
     //게시물 삭제
     @Transactional
-    public StatusResponseDto deleteBoard(Long id, HttpServletRequest request){
+    public BasicResponseDto deleteBoard(Long id, HttpServletRequest request){
         // Request에서 Token 가져오기
         String token = jwtUtil.resolveToken(request);
         Claims claims;
@@ -139,7 +139,7 @@ public class BoardService {
 
             boardRepository.delete(board);
 
-            return new StatusResponseDto(StatusErrorMessageEnum.DELETE_BOARD.getMessage(), 200);
+            return BasicResponseDto.setSuccess(StatusErrorMessageEnum.DELETE_BOARD.getMessage());
 
         } else {
             return null;

@@ -1,4 +1,4 @@
-package com.sparta.board.dto;
+package com.sparta.board.dto.comment;
 
 import com.sparta.board.entity.Comment;
 import lombok.Getter;
@@ -20,6 +20,6 @@ public class CommentResponseDto {
         this.content = comment.getContent();
         this.createdAt = comment.getCreatedAt();
         this.modifiedAt = comment.getModifiedAt();
-        this.username = comment.getUsername();
+        this.username = comment.getUser().getUsername();
     }
 }

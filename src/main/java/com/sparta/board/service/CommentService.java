@@ -1,9 +1,9 @@
 package com.sparta.board.service;
 
-import com.sparta.board.dto.BoardRequestDto;
-import com.sparta.board.dto.CommentRequestDto;
-import com.sparta.board.dto.CommentResponseDto;
-import com.sparta.board.dto.StatusResponseDto;
+import com.sparta.board.dto.BasicResponseDto;
+import com.sparta.board.dto.board.BoardRequestDto;
+import com.sparta.board.dto.comment.CommentRequestDto;
+import com.sparta.board.dto.comment.CommentResponseDto;
 import com.sparta.board.entity.Board;
 import com.sparta.board.entity.Comment;
 import com.sparta.board.entity.StatusErrorMessageEnum;
@@ -29,7 +29,7 @@ public class CommentService {
 
 
     @Transactional
-    public CommentResponseDto createComment(CommentRequestDto requestDto, HttpServletRequest request) {
+    public BasicResponseDto createComment(CommentRequestDto requestDto, HttpServletRequest request) {
         // Request에서 Token 가져오기
         String token = jwtUtil.resolveToken(request);
         Claims claims;
@@ -55,17 +55,17 @@ public class CommentService {
             );
 
             // 요청받은 DTO 로 DB에 저장할 객체 만들기
-            Comment comment = commentRepository.saveAndFlush(Comment.saveComment(requestDto,user));
+            Comment comment = commentRepository.saveAndFlush(Comment.saveComment(requestDto,user,board));
 
             board.addComment(comment);
 
-            return new CommentResponseDto(comment);
+            return BasicResponseDto.setSuccess(StatusErrorMessageEnum.CREATE_COMMENT.getMessage(),new CommentResponseDto(comment));
         } else {
             throw new NullPointerException(StatusErrorMessageEnum.TOKEN_ERROR.getMessage());
         }
     }
     @Transactional
-    public CommentResponseDto updateComment(Long id, BoardRequestDto requestDto, HttpServletRequest request) {
+    public BasicResponseDto updateComment(Long id, BoardRequestDto requestDto, HttpServletRequest request) {
         // Request에서 Token 가져오기
         String token = jwtUtil.resolveToken(request);
         Claims claims;
@@ -85,13 +85,13 @@ public class CommentService {
                     () -> new IllegalArgumentException(StatusErrorMessageEnum.USER_NOT_EXIST.getMessage())
             );
 
-            Comment comment = commentRepository.findByIdAndUsername(id, user.getUsername()).orElseThrow(
+            Comment comment = commentRepository.findByIdAndUser(id, user).orElseThrow(
                     () -> new NullPointerException(StatusErrorMessageEnum.COMMENT_NOT_EXIST_OR_WRONG_USER.getMessage())
             );
 
             comment.updateComment(requestDto);
 
-            return new CommentResponseDto(comment);
+            return BasicResponseDto.setSuccess(StatusErrorMessageEnum.UPDATE_COMMENT.getMessage(),new CommentResponseDto(comment));
 
         } else {
             return null;
@@ -99,7 +99,7 @@ public class CommentService {
     }
 
     @Transactional
-    public StatusResponseDto deleteComment(Long id, HttpServletRequest request) {
+    public BasicResponseDto deleteComment(Long id, HttpServletRequest request) {
         // Request에서 Token 가져오기
         String token = jwtUtil.resolveToken(request);
         Claims claims;
@@ -119,13 +119,13 @@ public class CommentService {
                     () -> new IllegalArgumentException(StatusErrorMessageEnum.USER_NOT_EXIST.getMessage())
             );
 
-            Comment comment = commentRepository.findByIdAndUsername(id, user.getUsername()).orElseThrow(
+            Comment comment = commentRepository.findByIdAndUser(id, user).orElseThrow(
                     () -> new NullPointerException(StatusErrorMessageEnum.COMMENT_NOT_EXIST_OR_WRONG_USER.getMessage())
             );
 
             commentRepository.delete(comment);
 
-            return new StatusResponseDto(StatusErrorMessageEnum.DELETE_COMMENT.getMessage(), 200);
+            return BasicResponseDto.setSuccess(StatusErrorMessageEnum.DELETE_COMMENT.getMessage());
 
         } else {
             return null;

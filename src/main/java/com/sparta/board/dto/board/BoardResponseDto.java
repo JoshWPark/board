@@ -1,11 +1,13 @@
-package com.sparta.board.dto;
+package com.sparta.board.dto.board;
 
+import com.sparta.board.dto.comment.CommentResponseDto;
 import com.sparta.board.entity.Board;
 import com.sparta.board.entity.Comment;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Getter
@@ -17,7 +19,7 @@ public class BoardResponseDto {
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
-    private List<Comment> commentList;
+    private List<CommentResponseDto> commentList;
 
     public BoardResponseDto(Board board) {
         this.id = board.getId();
@@ -26,6 +28,8 @@ public class BoardResponseDto {
         this.content = board.getContent();
         this.createdAt = board.getCreatedAt();
         this.modifiedAt = board.getModifiedAt();
-        this.commentList = board.getCommentList();
+        this.commentList = board.getCommentList()
+                .stream().sorted(Comparator.comparing(Comment::getCreatedAt).reversed())
+                .map(CommentResponseDto::new).toList();
     }
 }

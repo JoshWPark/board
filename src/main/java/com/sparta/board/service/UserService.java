@@ -1,7 +1,7 @@
 package com.sparta.board.service;
 
 import com.sparta.board.dto.AuthRequestDto;
-import com.sparta.board.dto.StatusResponseDto;
+import com.sparta.board.dto.BasicResponseDto;
 import com.sparta.board.entity.StatusErrorMessageEnum;
 import com.sparta.board.entity.User;
 import com.sparta.board.entity.UserRoleEnum;
@@ -23,7 +23,7 @@ public class UserService {
     private static final String ADMIN_TOKEN = "hanghae9914GiFighthingSpringBackEnd";
 
     @Transactional
-    public StatusResponseDto signup(AuthRequestDto requestDto) {
+    public BasicResponseDto signup(AuthRequestDto requestDto) {
         // 회원 중복 확인
         Optional<User> found = userRepository.findByUsername(requestDto.getUsername());
         if (found.isPresent()) {
@@ -37,12 +37,11 @@ public class UserService {
         }
         // 사용자 DB에 저장
         userRepository.saveAndFlush(User.saveUser(requestDto,role));
-
-        return new StatusResponseDto(StatusErrorMessageEnum.SUCCESS_SIGNUP.getMessage(), 200);
+        return BasicResponseDto.setSuccess(StatusErrorMessageEnum.SUCCESS_SIGNUP.getMessage());
     }
 
     @Transactional(readOnly = true)
-    public StatusResponseDto login(AuthRequestDto requestDto, HttpServletResponse response) {
+    public BasicResponseDto login(AuthRequestDto requestDto, HttpServletResponse response) {
         // 사용자 확인
         User user = userRepository.findByUsername(requestDto.getUsername()).orElseThrow(
                 () -> new NullPointerException(StatusErrorMessageEnum.USER_NOT_EXIST.getMessage())
@@ -53,6 +52,6 @@ public class UserService {
         }
 
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUsername(), user.getRole()));
-        return new StatusResponseDto(StatusErrorMessageEnum.SUCCESS_LOGIN.getMessage(), 200);
+        return BasicResponseDto.setSuccess(StatusErrorMessageEnum.SUCCESS_LOGIN.getMessage());
     }
 }

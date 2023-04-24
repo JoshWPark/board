@@ -1,4 +1,4 @@
-package com.sparta.board.dto;
+package com.sparta.board.dto.comment;
 
 
 import lombok.Getter;

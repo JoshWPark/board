@@ -1,6 +1,6 @@
 package com.sparta.board.entity;
 
-import com.sparta.board.dto.BoardRequestDto;
+import com.sparta.board.dto.board.BoardRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,10 +19,10 @@ public class Board extends Timestamped {
     private String title;
     @Column(nullable = false)
     private String content;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID", nullable = false)
     private User user;
-    @OneToMany
+    @OneToMany(mappedBy = "board", cascade =  CascadeType.REMOVE)
     private List<Comment> commentList = new ArrayList<>();
 
     private Board(String title, String content, User author) {

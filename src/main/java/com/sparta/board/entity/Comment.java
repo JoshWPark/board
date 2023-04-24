@@ -1,7 +1,7 @@
 package com.sparta.board.entity;
 
-import com.sparta.board.dto.BoardRequestDto;
-import com.sparta.board.dto.CommentRequestDto;
+import com.sparta.board.dto.board.BoardRequestDto;
+import com.sparta.board.dto.comment.CommentRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,17 +15,22 @@ public class Comment extends Timestamped {
     private Long id;
     @Column(nullable = false)
     private String content;
-    @Column(nullable = false)
-    private String username;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "USER_ID", nullable = false)
+    private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "BOARD_ID", nullable = false)
+    private Board board;
 
 
-    private Comment(String content, String user) {
+    private Comment(String content, User author, Board blog) {
         this.content = content;
-        this.username = user;
+        this.user = author;
+        this.board = blog;
     }
 
-    public static Comment saveComment(CommentRequestDto requestDto, User user){
-        return new Comment(requestDto.getContent(),user.getUsername());
+    public static Comment saveComment(CommentRequestDto requestDto, User user, Board board){
+        return new Comment(requestDto.getContent(),user, board);
     }
     private void update(String content){
         this.content = content;

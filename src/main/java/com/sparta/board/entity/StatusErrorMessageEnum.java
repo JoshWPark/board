@@ -4,7 +4,13 @@ public enum StatusErrorMessageEnum {
     //Status Messages
     SUCCESS_SIGNUP("회원가입 성공"),
     SUCCESS_LOGIN("로그인 성공"),
+    CREATE_BOARD("게시물 생성 성공"),
+    GET_ALL_BOARD("전체 게시물 조회 성공"),
+    GET_BOARD("게시물 조회 성공"),
+    UPDATE_BOARD("게시뭏 수정 성공"),
     DELETE_BOARD("게시물 삭제 성공"),
+    CREATE_COMMENT("댓글 생성 성공"),
+    UPDATE_COMMENT("댓글 수정 성공"),
     DELETE_COMMENT("댓글 삭제 성공"),
     //Error Messages
     TOKEN_ERROR("토큰이 유효하지 않습니다."),
