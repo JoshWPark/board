@@ -9,6 +9,8 @@ import com.sparta.board.entity.User;
 import com.sparta.board.repository.BoardRepository;
 import com.sparta.board.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
