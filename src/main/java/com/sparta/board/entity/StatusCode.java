@@ -3,6 +3,8 @@ package com.sparta.board.entity;
 public enum StatusCode {
     OK(200),
     BAD_REQUEST(400),
+    UNAUTHORIZED(401),
+    ACCESS_DENIED(403),
     METHOD_NOT_ALLOWED(405),
     NOT_ACCEPTABLE(406);
     private final int statusCode;

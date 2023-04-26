@@ -1,6 +1,5 @@
 package com.sparta.board.entity;
 
-import com.sparta.board.dto.AuthRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,7 +26,7 @@ public class User {
         this.role = role;
     }
 
-    public static User saveUser(AuthRequestDto requestDto, UserRoleEnum role){
-        return new User(requestDto.getUsername(), requestDto.getPassword(), role);
+    public static User saveUser(String username, String password, UserRoleEnum role){
+        return new User(username, password, role);
     }
 }

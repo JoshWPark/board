@@ -2,9 +2,10 @@ package com.sparta.board.controller;
 
 import com.sparta.board.dto.BasicResponseDto;
 import com.sparta.board.dto.board.BoardRequestDto;
+import com.sparta.board.security.UserDetailsImpl;
 import com.sparta.board.service.BoardService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 // Client <-Dto-> Controller <-Dto-> Service <-Dto-> Repository <-Entity-> DB
 
@@ -17,8 +18,8 @@ public class BoardController {
 
     //게시물 작성
     @PostMapping("/new")
-    public BasicResponseDto createBoard(@RequestBody BoardRequestDto requestDto, HttpServletRequest request){
-        return boardService.createBoard(requestDto, request);
+    public BasicResponseDto createBoard(@RequestBody BoardRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return boardService.createBoard(requestDto, userDetails.getUser());
     }
 
     // 전체 게시물 조회
@@ -35,14 +36,14 @@ public class BoardController {
 
     //게시물 수정
     @PutMapping("/post/{id}")
-    public BasicResponseDto updateBoard (@PathVariable Long id, @RequestBody BoardRequestDto requestDto, HttpServletRequest request) {
-        return boardService.updateBoard(id, requestDto, request);
+    public BasicResponseDto updateBoard (@PathVariable Long id, @RequestBody BoardRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return boardService.updateBoard(id, requestDto, userDetails.getUser());
     }
 
     //게시물 삭제
     @DeleteMapping("/post/{id}")
-    public BasicResponseDto deleteBoard(@PathVariable Long id, HttpServletRequest request){
-        return boardService.deleteBoard(id, request);
+    public BasicResponseDto deleteBoard(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return boardService.deleteBoard(id, userDetails.getUser());
     }
 
 

@@ -9,6 +9,7 @@ import com.sparta.board.jwt.JwtUtil;
 import com.sparta.board.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,9 +22,12 @@ public class UserService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private static final String ADMIN_TOKEN = "hanghae9914GiFighthingSpringBackEnd";
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public BasicResponseDto signup(AuthRequestDto requestDto) {
+        String password = passwordEncoder.encode(requestDto.getPassword());
+
         // 회원 중복 확인
         Optional<User> found = userRepository.findByUsername(requestDto.getUsername());
         if (found.isPresent()) {
@@ -35,8 +39,10 @@ public class UserService {
         if (!requestDto.getAdminToken().equals(ADMIN_TOKEN)) {
             throw new IllegalArgumentException(StatusErrorMessageEnum.WRONG_ADMIN_KEY.getMessage());
         }
+
+
         // 사용자 DB에 저장
-        userRepository.saveAndFlush(User.saveUser(requestDto,role));
+        userRepository.saveAndFlush(User.saveUser(requestDto.getUsername(),password,role));
         return BasicResponseDto.setSuccess(StatusErrorMessageEnum.SUCCESS_SIGNUP.getMessage());
     }
 
@@ -47,7 +53,7 @@ public class UserService {
                 () -> new NullPointerException(StatusErrorMessageEnum.USER_NOT_EXIST.getMessage())
         );
         // 비밀번호 확인
-        if(!user.getPassword().equals(requestDto.getPassword())){
+        if(!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())){
             throw  new IllegalArgumentException(StatusErrorMessageEnum.WRONG_PASSWORD.getMessage());
         }
 

@@ -25,7 +25,7 @@ public class UserController {
         return userService.signup(requestDto);
     }
 
-    @PostMapping("/login")
+    @PostMapping("/login-page")
     public BasicResponseDto login(@RequestBody AuthRequestDto requestDto, HttpServletResponse response) {
         return userService.login(requestDto, response);
     }

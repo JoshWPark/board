@@ -10,8 +10,6 @@ import com.sparta.board.entity.UserRoleEnum;
 import com.sparta.board.jwt.JwtUtil;
 import com.sparta.board.repository.BoardRepository;
 import com.sparta.board.repository.UserRepository;
-import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,33 +26,11 @@ public class BoardService {
 
     //게시물 생성
     @Transactional
-    public BasicResponseDto createBoard(BoardRequestDto requestDto, HttpServletRequest request){
-        // Request에서 Token 가져오기
-        String token = jwtUtil.resolveToken(request);
-        Claims claims;
+    public BasicResponseDto createBoard(BoardRequestDto requestDto,User user){
+        // 요청받은 DTO 로 DB에 저장할 객체 만들기
+        Board board = boardRepository.saveAndFlush(Board.saveBoard(requestDto, user));
 
-        // 토큰이 있는 경우에만 게시물 추가 가능
-        if (token != null) {
-            // Token 검증
-            if (jwtUtil.validateToken(token)) {
-                // 토큰에서 사용자 정보 가져오기
-                claims = jwtUtil.getUserInfoFromToken(token);
-            } else {
-                throw new IllegalArgumentException(StatusErrorMessageEnum.TOKEN_ERROR.getMessage());
-            }
-
-            // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회
-            User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                    () -> new IllegalArgumentException(StatusErrorMessageEnum.USER_NOT_EXIST.getMessage())
-            );
-
-            // 요청받은 DTO 로 DB에 저장할 객체 만들기
-            Board board = boardRepository.saveAndFlush(Board.saveBoard(requestDto, user));
-
-            return BasicResponseDto.setSuccess(StatusErrorMessageEnum.CREATE_BOARD.getMessage(),new BoardResponseDto(board));
-        } else {
-            throw new NullPointerException(StatusErrorMessageEnum.TOKEN_ERROR.getMessage());
-        }
+        return BasicResponseDto.setSuccess(StatusErrorMessageEnum.CREATE_BOARD.getMessage(),new BoardResponseDto(board));
     }
 
 
@@ -77,92 +53,44 @@ public class BoardService {
 
     // 게시물 수정
     @Transactional
-    public BasicResponseDto updateBoard (Long id,  BoardRequestDto requestDto,  HttpServletRequest request) {
-        // Request에서 Token 가져오기
-        String token = jwtUtil.resolveToken(request);
-        Claims claims;
-
-        // 토큰이 있는 경우에만 게시물 수정 가능
-        if (token != null) {
-            // Token 검증
-            if (jwtUtil.validateToken(token)) {
-                // 토큰에서 사용자 정보 가져오기
-                claims = jwtUtil.getUserInfoFromToken(token);
-            } else {
-                throw new IllegalArgumentException(StatusErrorMessageEnum.TOKEN_ERROR.getMessage());
-            }
-
-            // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회
-            User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                    () -> new IllegalArgumentException(StatusErrorMessageEnum.USER_NOT_EXIST.getMessage())
+    public BasicResponseDto updateBoard (Long id,  BoardRequestDto requestDto,  User user) {
+        Board board;
+        UserRoleEnum userRoleEnum = user.getRole();
+        if(userRoleEnum.equals(UserRoleEnum.USER)){
+            board = boardRepository.findByIdAndUser(id, user).orElseThrow(
+                    () -> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST_OR_WRONG_USER.getMessage())
             );
-
-            Board board;
-            UserRoleEnum userRoleEnum = user.getRole();
-            if(userRoleEnum.equals(UserRoleEnum.USER)){
-                board = boardRepository.findByIdAndUser(id, user).orElseThrow(
-                        () -> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST_OR_WRONG_USER.getMessage())
-                );
-            }
-            else {
-                board = boardRepository.findById(id).orElseThrow(
-                        ()-> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST.getMessage())
-                );
-            }
-
-            board.updateBoard(requestDto);
-
-            return BasicResponseDto.setSuccess(StatusErrorMessageEnum.UPDATE_BOARD.getMessage(),new BoardResponseDto(board));
-
-        } else {
-            return null;
+        }
+        else {
+            board = boardRepository.findById(id).orElseThrow(
+                    ()-> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST.getMessage())
+            );
         }
 
+        board.updateBoard(requestDto);
 
+        return BasicResponseDto.setSuccess(StatusErrorMessageEnum.UPDATE_BOARD.getMessage(),new BoardResponseDto(board));
     }
 
     //게시물 삭제
     @Transactional
-    public BasicResponseDto deleteBoard(Long id, HttpServletRequest request){
-        // Request에서 Token 가져오기
-        String token = jwtUtil.resolveToken(request);
-        Claims claims;
-
-        // 토큰이 있는 경우에만 게시물 삭제 가능
-        if (token != null) {
-            // Token 검증
-            if (jwtUtil.validateToken(token)) {
-                // 토큰에서 사용자 정보 가져오기
-                claims = jwtUtil.getUserInfoFromToken(token);
-            } else {
-                throw new IllegalArgumentException(StatusErrorMessageEnum.TOKEN_ERROR.getMessage());
-            }
-
-            // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회
-            User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                    () -> new NullPointerException(StatusErrorMessageEnum.USER_NOT_EXIST.getMessage())
+    public BasicResponseDto deleteBoard(Long id, User user){
+        Board board;
+        UserRoleEnum userRoleEnum = user.getRole();
+        if(userRoleEnum.equals(UserRoleEnum.USER)){
+            board = boardRepository.findByIdAndUser(id, user).orElseThrow(
+                    () -> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST_OR_WRONG_USER.getMessage())
             );
-
-            Board board;
-            UserRoleEnum userRoleEnum = user.getRole();
-            if(userRoleEnum.equals(UserRoleEnum.USER)){
-                board = boardRepository.findByIdAndUser(id, user).orElseThrow(
-                        () -> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST_OR_WRONG_USER.getMessage())
-                );
-            }
-            else {
-                board = boardRepository.findById(id).orElseThrow(
-                        ()-> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST.getMessage())
-                );
-            }
-
-            boardRepository.delete(board);
-
-            return BasicResponseDto.setSuccess(StatusErrorMessageEnum.DELETE_BOARD.getMessage());
-
-        } else {
-            return null;
         }
+        else {
+            board = boardRepository.findById(id).orElseThrow(
+                    ()-> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST.getMessage())
+            );
+        }
+
+        boardRepository.delete(board);
+
+        return BasicResponseDto.setSuccess(StatusErrorMessageEnum.DELETE_BOARD.getMessage());
 
     }
 }
