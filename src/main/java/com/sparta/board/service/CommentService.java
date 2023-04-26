@@ -4,23 +4,24 @@ import com.sparta.board.dto.BasicResponseDto;
 import com.sparta.board.dto.board.BoardRequestDto;
 import com.sparta.board.dto.comment.CommentRequestDto;
 import com.sparta.board.dto.comment.CommentResponseDto;
-import com.sparta.board.entity.*;
-import com.sparta.board.jwt.JwtUtil;
+import com.sparta.board.entity.Board;
+import com.sparta.board.entity.Comment;
+import com.sparta.board.entity.StatusErrorMessageEnum;
+import com.sparta.board.entity.User;
 import com.sparta.board.repository.BoardRepository;
 import com.sparta.board.repository.CommentRepository;
-import com.sparta.board.repository.UserRepository;
+import com.sparta.board.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class CommentService {
+public class CommentService extends SuperService{
 
-    private final UserRepository userRepository;
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
-    private final JwtUtil jwtUtil;
+
 
 
     @Transactional
@@ -38,19 +39,8 @@ public class CommentService {
         return BasicResponseDto.setSuccess(StatusErrorMessageEnum.CREATE_COMMENT.getMessage(),new CommentResponseDto(comment));
     }
     @Transactional
-    public BasicResponseDto updateComment(Long id, BoardRequestDto requestDto, User user) {
-        Comment comment;
-        UserRoleEnum userRoleEnum = user.getRole();
-        if(userRoleEnum.equals(UserRoleEnum.USER)){
-            comment = commentRepository.findByIdAndUser(id, user).orElseThrow(
-                    () -> new NullPointerException(StatusErrorMessageEnum.COMMENT_NOT_EXIST_OR_WRONG_USER.getMessage())
-            );
-        }
-        else {
-            comment = commentRepository.findById(id).orElseThrow(
-                    ()-> new NullPointerException(StatusErrorMessageEnum.COMMENT_NOT_EXIST.getMessage())
-            );
-        }
+    public BasicResponseDto updateComment(Long id, BoardRequestDto requestDto, UserDetailsImpl userDetails) {
+        Comment comment = commentCheck(id,userDetails,commentRepository);
 
         comment.updateComment(requestDto);
 
@@ -58,19 +48,8 @@ public class CommentService {
     }
 
     @Transactional
-    public BasicResponseDto deleteComment(Long id, User user) {
-        Comment comment;
-        UserRoleEnum userRoleEnum = user.getRole();
-        if(userRoleEnum.equals(UserRoleEnum.USER)){
-            comment = commentRepository.findByIdAndUser(id, user).orElseThrow(
-                    () -> new NullPointerException(StatusErrorMessageEnum.COMMENT_NOT_EXIST_OR_WRONG_USER.getMessage())
-            );
-        }
-        else {
-            comment = commentRepository.findById(id).orElseThrow(
-                    ()-> new NullPointerException(StatusErrorMessageEnum.COMMENT_NOT_EXIST.getMessage())
-            );
-        }
+    public BasicResponseDto deleteComment(Long id, UserDetailsImpl userDetails) {
+        Comment comment = commentCheck(id,userDetails,commentRepository);
 
         commentRepository.delete(comment);
 

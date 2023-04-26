@@ -6,10 +6,8 @@ import com.sparta.board.dto.board.BoardResponseDto;
 import com.sparta.board.entity.Board;
 import com.sparta.board.entity.StatusErrorMessageEnum;
 import com.sparta.board.entity.User;
-import com.sparta.board.entity.UserRoleEnum;
-import com.sparta.board.jwt.JwtUtil;
 import com.sparta.board.repository.BoardRepository;
-import com.sparta.board.repository.UserRepository;
+import com.sparta.board.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,11 +16,9 @@ import java.util.Comparator;
 
 @Service
 @RequiredArgsConstructor
-public class BoardService {
+public class BoardService extends SuperService{
 
     private final BoardRepository boardRepository;
-    private final UserRepository userRepository;
-    private final JwtUtil jwtUtil;
 
     //게시물 생성
     @Transactional
@@ -53,19 +49,9 @@ public class BoardService {
 
     // 게시물 수정
     @Transactional
-    public BasicResponseDto updateBoard (Long id,  BoardRequestDto requestDto,  User user) {
-        Board board;
-        UserRoleEnum userRoleEnum = user.getRole();
-        if(userRoleEnum.equals(UserRoleEnum.USER)){
-            board = boardRepository.findByIdAndUser(id, user).orElseThrow(
-                    () -> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST_OR_WRONG_USER.getMessage())
-            );
-        }
-        else {
-            board = boardRepository.findById(id).orElseThrow(
-                    ()-> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST.getMessage())
-            );
-        }
+    public BasicResponseDto updateBoard (Long id,  BoardRequestDto requestDto,  UserDetailsImpl userDetails) {
+
+        Board board = boardCheck(id,userDetails,boardRepository);
 
         board.updateBoard(requestDto);
 
@@ -74,19 +60,8 @@ public class BoardService {
 
     //게시물 삭제
     @Transactional
-    public BasicResponseDto deleteBoard(Long id, User user){
-        Board board;
-        UserRoleEnum userRoleEnum = user.getRole();
-        if(userRoleEnum.equals(UserRoleEnum.USER)){
-            board = boardRepository.findByIdAndUser(id, user).orElseThrow(
-                    () -> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST_OR_WRONG_USER.getMessage())
-            );
-        }
-        else {
-            board = boardRepository.findById(id).orElseThrow(
-                    ()-> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST.getMessage())
-            );
-        }
+    public BasicResponseDto deleteBoard(Long id, UserDetailsImpl userDetails){
+        Board board = boardCheck(id,userDetails,boardRepository);
 
         boardRepository.delete(board);
 

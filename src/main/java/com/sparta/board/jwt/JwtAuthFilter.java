@@ -36,9 +36,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             Claims info = jwtUtil.getUserInfoFromToken(token);
             setAuthentication(info.getSubject());
         }
-//        else {
-//            throw new IllegalArgumentException(StatusErrorMessageEnum.TOKEN_ERROR.getMessage());
-//        }
         filterChain.doFilter(request,response);
     }
 

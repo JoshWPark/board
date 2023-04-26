@@ -37,13 +37,13 @@ public class BoardController {
     //게시물 수정
     @PutMapping("/post/{id}")
     public BasicResponseDto updateBoard (@PathVariable Long id, @RequestBody BoardRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return boardService.updateBoard(id, requestDto, userDetails.getUser());
+        return boardService.updateBoard(id, requestDto, userDetails);
     }
 
     //게시물 삭제
     @DeleteMapping("/post/{id}")
     public BasicResponseDto deleteBoard(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
-        return boardService.deleteBoard(id, userDetails.getUser());
+        return boardService.deleteBoard(id, userDetails);
     }
 
 
