@@ -21,12 +21,14 @@ public class UserController {
 
     //username 과 password 특정 패턴인지 확인
     @PostMapping("/signup")
-    public BasicResponseDto signup(@Valid @RequestBody AuthRequestDto requestDto) {
-        return userService.signup(requestDto);
+    public BasicResponseDto<?> signup(@Valid @RequestBody AuthRequestDto requestDto) {
+        String message = userService.signup(requestDto);
+        return BasicResponseDto.setSuccess(message);
     }
 
     @PostMapping("/login-page")
-    public BasicResponseDto login(@RequestBody AuthRequestDto requestDto, HttpServletResponse response) {
-        return userService.login(requestDto, response);
+    public  BasicResponseDto<?> login(@RequestBody AuthRequestDto requestDto, HttpServletResponse response) {
+        String message = userService.login(requestDto, response);
+        return BasicResponseDto.setSuccess(message);
     }
 }

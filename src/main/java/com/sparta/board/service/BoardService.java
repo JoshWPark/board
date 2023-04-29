@@ -1,6 +1,5 @@
 package com.sparta.board.service;
 
-import com.sparta.board.dto.BasicResponseDto;
 import com.sparta.board.dto.board.BoardRequestDto;
 import com.sparta.board.dto.board.BoardResponseDto;
 import com.sparta.board.entity.Board;
@@ -15,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,55 +25,51 @@ public class BoardService extends SuperService{
 
     //게시물 생성
     @Transactional
-    public BasicResponseDto createBoard(BoardRequestDto requestDto,User user){
+    public BoardResponseDto createBoard(BoardRequestDto requestDto,User user){
         // 요청받은 DTO 로 DB에 저장할 객체 만들기
         Board board = boardRepository.saveAndFlush(Board.saveBoard(requestDto, user));
-
-        return BasicResponseDto.setSuccess(StatusErrorMessageEnum.CREATE_BOARD.getMessage(),new BoardResponseDto(board));
+        return new BoardResponseDto(board);
     }
 
 
 
     // 전체 게시물 조회
-    public BasicResponseDto getBoardList() {
-        return BasicResponseDto.setSuccess(StatusErrorMessageEnum.GET_ALL_BOARD.getMessage(),
-                boardRepository.findAll().stream().sorted(Comparator.comparing(Board::getCreatedAt).reversed()).map(BoardResponseDto::new).toList()
-        );
+    public List<BoardResponseDto> getBoardList() {
+        return boardRepository.findAll().stream().sorted(Comparator.comparing(Board::getCreatedAt).reversed()).map(BoardResponseDto::new).toList();
     }
 
     //특정 게시물 조회
-    public BasicResponseDto getBoard(Long id){
+    public BoardResponseDto getBoard(Long id){
         Board board = boardRepository.findById(id).orElseThrow(
                 () -> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST.getMessage())
         );
-
-        return BasicResponseDto.setSuccess(StatusErrorMessageEnum.GET_BOARD.getMessage(), new BoardResponseDto(board));
+        return new BoardResponseDto(board);
     }
 
     // 게시물 수정
     @Transactional
-    public BasicResponseDto updateBoard (Long id,  BoardRequestDto requestDto,  UserDetailsImpl userDetails) {
+    public BoardResponseDto updateBoard (Long id,  BoardRequestDto requestDto,  UserDetailsImpl userDetails) {
 
         Board board = boardCheck(id,userDetails,boardRepository);
 
         board.updateBoard(requestDto);
 
-        return BasicResponseDto.setSuccess(StatusErrorMessageEnum.UPDATE_BOARD.getMessage(),new BoardResponseDto(board));
+        return new BoardResponseDto(board);
     }
 
     //게시물 삭제
     @Transactional
-    public BasicResponseDto deleteBoard(Long id, UserDetailsImpl userDetails){
+    public String deleteBoard(Long id, UserDetailsImpl userDetails){
         Board board = boardCheck(id,userDetails,boardRepository);
 
         boardRepository.delete(board);
 
-        return BasicResponseDto.setSuccess(StatusErrorMessageEnum.DELETE_BOARD.getMessage());
+        return StatusErrorMessageEnum.DELETE_BOARD.getMessage();
 
     }
 
     @Transactional
-    public BasicResponseDto updateLikeBoard(Long id,UserDetailsImpl userDetails){
+    public String updateLikeBoard(Long id,UserDetailsImpl userDetails){
         Board board = boardRepository.findById(id).orElseThrow(
                 () -> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST.getMessage())
         );
@@ -81,13 +77,13 @@ public class BoardService extends SuperService{
 
             boardLikeRepository.saveAndFlush(BoardLike.updateLike(board, userDetails));
             board.updateLike(true);
-            return BasicResponseDto.setSuccess(StatusErrorMessageEnum.LIKE_BOARD.getMessage());
+            return StatusErrorMessageEnum.LIKE_BOARD.getMessage();
         }
         else{
             BoardLike boardLike = boardLikeRepository.findByBoardAndUser(board, userDetails.getUser());
             board.updateLike(false);
             boardLikeRepository.delete(boardLike);
-            return BasicResponseDto.setSuccess(StatusErrorMessageEnum.UNLIKE_BOARD.getMessage());
+            return StatusErrorMessageEnum.UNLIKE_BOARD.getMessage();
         }
     }
 }

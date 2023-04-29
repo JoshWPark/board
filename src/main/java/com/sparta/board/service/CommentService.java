@@ -1,6 +1,5 @@
 package com.sparta.board.service;
 
-import com.sparta.board.dto.BasicResponseDto;
 import com.sparta.board.dto.board.BoardRequestDto;
 import com.sparta.board.dto.comment.CommentRequestDto;
 import com.sparta.board.dto.comment.CommentResponseDto;
@@ -24,7 +23,7 @@ public class CommentService extends SuperService{
 
 
     @Transactional
-    public BasicResponseDto createComment(CommentRequestDto requestDto, User user) {
+    public CommentResponseDto createComment(CommentRequestDto requestDto, User user) {
         // requestDto 에서 가져온 사용자 정보를 사용하여 DB 조회
         Board board = boardRepository.findById(requestDto.getPost_id()).orElseThrow(
                 () -> new IllegalArgumentException(StatusErrorMessageEnum.BOARD_NOT_EXIST.getMessage())
@@ -35,28 +34,28 @@ public class CommentService extends SuperService{
 
         board.addComment(comment);
 
-        return BasicResponseDto.setSuccess(StatusErrorMessageEnum.CREATE_COMMENT.getMessage(),new CommentResponseDto(comment));
+        return new CommentResponseDto(comment);
     }
     @Transactional
-    public BasicResponseDto updateComment(Long id, BoardRequestDto requestDto, UserDetailsImpl userDetails) {
+    public CommentResponseDto updateComment(Long id, BoardRequestDto requestDto, UserDetailsImpl userDetails) {
         Comment comment = commentCheck(id,userDetails,commentRepository);
 
         comment.updateComment(requestDto);
 
-        return BasicResponseDto.setSuccess(StatusErrorMessageEnum.UPDATE_COMMENT.getMessage(),new CommentResponseDto(comment));
+        return new CommentResponseDto(comment);
     }
 
     @Transactional
-    public BasicResponseDto deleteComment(Long id, UserDetailsImpl userDetails) {
+    public String deleteComment(Long id, UserDetailsImpl userDetails) {
         Comment comment = commentCheck(id,userDetails,commentRepository);
 
         commentRepository.delete(comment);
 
-        return BasicResponseDto.setSuccess(StatusErrorMessageEnum.DELETE_COMMENT.getMessage());
+        return StatusErrorMessageEnum.DELETE_COMMENT.getMessage();
     }
 
     @Transactional
-    public BasicResponseDto updateLikeComment(Long id, UserDetailsImpl userDetails){
+    public String updateLikeComment(Long id, UserDetailsImpl userDetails){
         Comment comment = commentRepository.findById(id).orElseThrow(
                 () -> new NullPointerException(StatusErrorMessageEnum.COMMENT_NOT_EXIST.getMessage())
         );
@@ -64,13 +63,13 @@ public class CommentService extends SuperService{
 
             commentLikeRepository.saveAndFlush(CommentLike.updateLike(comment, userDetails));
             comment.updateLike(true);
-            return BasicResponseDto.setSuccess(StatusErrorMessageEnum.LIKE_COMMENT.getMessage());
+            return StatusErrorMessageEnum.LIKE_COMMENT.getMessage();
         }
         else{
             CommentLike commentLike = commentLikeRepository.findByCommentAndUser(comment, userDetails.getUser());
             comment.updateLike(false);
             commentLikeRepository.delete(commentLike);
-            return BasicResponseDto.setSuccess(StatusErrorMessageEnum.UNLIKE_COMMENT.getMessage());
+            return StatusErrorMessageEnum.UNLIKE_COMMENT.getMessage();
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.sparta.board.service;
 
 import com.sparta.board.dto.AuthRequestDto;
-import com.sparta.board.dto.BasicResponseDto;
 import com.sparta.board.entity.StatusErrorMessageEnum;
 import com.sparta.board.entity.User;
 import com.sparta.board.entity.UserRoleEnum;
@@ -25,7 +24,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public BasicResponseDto signup(AuthRequestDto requestDto) {
+    public String signup(AuthRequestDto requestDto) {
         String password = passwordEncoder.encode(requestDto.getPassword());
 
         // 회원 중복 확인
@@ -43,11 +42,11 @@ public class UserService {
 
         // 사용자 DB에 저장
         userRepository.saveAndFlush(User.saveUser(requestDto.getUsername(),password,role));
-        return BasicResponseDto.setSuccess(StatusErrorMessageEnum.SUCCESS_SIGNUP.getMessage());
+        return StatusErrorMessageEnum.SUCCESS_SIGNUP.getMessage();
     }
 
     @Transactional(readOnly = true)
-    public BasicResponseDto login(AuthRequestDto requestDto, HttpServletResponse response) {
+    public String login(AuthRequestDto requestDto, HttpServletResponse response) {
         // 사용자 확인
         User user = userRepository.findByUsername(requestDto.getUsername()).orElseThrow(
                 () -> new NullPointerException(StatusErrorMessageEnum.USER_NOT_EXIST.getMessage())
@@ -58,6 +57,6 @@ public class UserService {
         }
 
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUsername(), user.getRole()));
-        return BasicResponseDto.setSuccess(StatusErrorMessageEnum.SUCCESS_LOGIN.getMessage());
+        return StatusErrorMessageEnum.SUCCESS_LOGIN.getMessage();
     }
 }
