@@ -4,11 +4,9 @@ import com.sparta.board.dto.BasicResponseDto;
 import com.sparta.board.dto.board.BoardRequestDto;
 import com.sparta.board.dto.comment.CommentRequestDto;
 import com.sparta.board.dto.comment.CommentResponseDto;
-import com.sparta.board.entity.Board;
-import com.sparta.board.entity.Comment;
-import com.sparta.board.entity.StatusErrorMessageEnum;
-import com.sparta.board.entity.User;
+import com.sparta.board.entity.*;
 import com.sparta.board.repository.BoardRepository;
+import com.sparta.board.repository.CommentLikeRepository;
 import com.sparta.board.repository.CommentRepository;
 import com.sparta.board.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +19,7 @@ public class CommentService extends SuperService{
 
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
+    private final CommentLikeRepository commentLikeRepository;
 
 
 
@@ -54,5 +53,24 @@ public class CommentService extends SuperService{
         commentRepository.delete(comment);
 
         return BasicResponseDto.setSuccess(StatusErrorMessageEnum.DELETE_COMMENT.getMessage());
+    }
+
+    @Transactional
+    public BasicResponseDto updateLikeComment(Long id, UserDetailsImpl userDetails){
+        Comment comment = commentRepository.findById(id).orElseThrow(
+                () -> new NullPointerException(StatusErrorMessageEnum.COMMENT_NOT_EXIST.getMessage())
+        );
+        if(commentLikeRepository.findByCommentAndUser(comment, userDetails.getUser()) == null){
+
+            commentLikeRepository.saveAndFlush(CommentLike.updateLike(comment, userDetails));
+            comment.updateLike(true);
+            return BasicResponseDto.setSuccess(StatusErrorMessageEnum.LIKE_COMMENT.getMessage());
+        }
+        else{
+            CommentLike commentLike = commentLikeRepository.findByCommentAndUser(comment, userDetails.getUser());
+            comment.updateLike(false);
+            commentLikeRepository.delete(commentLike);
+            return BasicResponseDto.setSuccess(StatusErrorMessageEnum.UNLIKE_COMMENT.getMessage());
+        }
     }
 }

@@ -12,6 +12,10 @@ public enum StatusErrorMessageEnum {
     CREATE_COMMENT("댓글 생성 성공"),
     UPDATE_COMMENT("댓글 수정 성공"),
     DELETE_COMMENT("댓글 삭제 성공"),
+    LIKE_BOARD("게시물 좋아요 성공"),
+    UNLIKE_BOARD("게시물 좋아요 취소 성공"),
+    LIKE_COMMENT("댓글 좋아요 성공"),
+    UNLIKE_COMMENT("댓글 좋아요 취소 성공"),
     //Error Messages
     TOKEN_ERROR("토큰이 유효하지 않습니다."),
     USER_EXIST("중복된 username 입니다."),

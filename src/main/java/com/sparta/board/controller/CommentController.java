@@ -30,4 +30,9 @@ public class CommentController {
     public BasicResponseDto deleteComment(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
         return commentService.deleteComment(id, userDetails);
     }
+    //댓글 좋아요
+    @PostMapping("/comment/like/{id}")
+    public BasicResponseDto updateLikeComment(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return commentService.updateLikeComment(id, userDetails);
+    }
 }

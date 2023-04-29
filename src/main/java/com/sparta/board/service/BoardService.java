@@ -4,13 +4,13 @@ import com.sparta.board.dto.BasicResponseDto;
 import com.sparta.board.dto.board.BoardRequestDto;
 import com.sparta.board.dto.board.BoardResponseDto;
 import com.sparta.board.entity.Board;
+import com.sparta.board.entity.BoardLike;
 import com.sparta.board.entity.StatusErrorMessageEnum;
 import com.sparta.board.entity.User;
+import com.sparta.board.repository.BoardLikeRepository;
 import com.sparta.board.repository.BoardRepository;
 import com.sparta.board.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +21,7 @@ import java.util.Comparator;
 public class BoardService extends SuperService{
 
     private final BoardRepository boardRepository;
+    private final BoardLikeRepository boardLikeRepository;
 
     //게시물 생성
     @Transactional
@@ -69,5 +70,24 @@ public class BoardService extends SuperService{
 
         return BasicResponseDto.setSuccess(StatusErrorMessageEnum.DELETE_BOARD.getMessage());
 
+    }
+
+    @Transactional
+    public BasicResponseDto updateLikeBoard(Long id,UserDetailsImpl userDetails){
+        Board board = boardRepository.findById(id).orElseThrow(
+                () -> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST.getMessage())
+        );
+        if(boardLikeRepository.findByBoardAndUser(board, userDetails.getUser()) == null){
+
+            boardLikeRepository.saveAndFlush(BoardLike.updateLike(board, userDetails));
+            board.updateLike(true);
+            return BasicResponseDto.setSuccess(StatusErrorMessageEnum.LIKE_BOARD.getMessage());
+        }
+        else{
+            BoardLike boardLike = boardLikeRepository.findByBoardAndUser(board, userDetails.getUser());
+            board.updateLike(false);
+            boardLikeRepository.delete(boardLike);
+            return BasicResponseDto.setSuccess(StatusErrorMessageEnum.UNLIKE_BOARD.getMessage());
+        }
     }
 }

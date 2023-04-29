@@ -23,4 +23,5 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         String json = new ObjectMapper().writeValueAsString(BasicResponseDto.setBadRequest(authException.toString(), StatusCode.UNAUTHORIZED));
         response.getWriter().write(json);
     }
+
 }

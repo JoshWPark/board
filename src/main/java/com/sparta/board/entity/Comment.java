@@ -5,8 +5,11 @@ import com.sparta.board.dto.comment.CommentRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 
 @Entity
+@DynamicInsert
 @Getter
 @NoArgsConstructor
 public class Comment extends Timestamped {
@@ -21,6 +24,9 @@ public class Comment extends Timestamped {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "BOARD_ID", nullable = false)
     private Board board;
+    @Column(nullable = false)
+    @ColumnDefault("0")
+    private int likes;
 
 
     private Comment(String content, User author, Board blog) {
@@ -38,5 +44,9 @@ public class Comment extends Timestamped {
 
     public void updateComment(BoardRequestDto requestDto) {
         update(requestDto.getContent());
+    }
+
+    public void updateLike (Boolean likeOrDislike){
+        this.likes = Boolean.TRUE.equals(likeOrDislike) ? this.likes + 1 : this.likes - 1;
     }
 }

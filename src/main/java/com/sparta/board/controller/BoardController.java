@@ -46,5 +46,11 @@ public class BoardController {
         return boardService.deleteBoard(id, userDetails);
     }
 
+    //게시물 좋아요
+    @PostMapping("/post/like/{id}")
+    public BasicResponseDto updateLikeBoard(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return boardService.updateLikeBoard(id, userDetails);
+    }
+
 
 }

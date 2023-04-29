@@ -20,6 +20,7 @@ public class BoardResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private List<CommentResponseDto> commentList;
+    private int likes;
 
     public BoardResponseDto(Board board) {
         this.id = board.getId();
@@ -28,8 +29,10 @@ public class BoardResponseDto {
         this.content = board.getContent();
         this.createdAt = board.getCreatedAt();
         this.modifiedAt = board.getModifiedAt();
+        this.likes = board.getLikes();
         this.commentList = board.getCommentList()
                 .stream().sorted(Comparator.comparing(Comment::getCreatedAt).reversed())
                 .map(CommentResponseDto::new).toList();
+
     }
 }

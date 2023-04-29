@@ -4,11 +4,14 @@ import com.sparta.board.dto.board.BoardRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@DynamicInsert
 @Getter
 @NoArgsConstructor
 public class Board extends Timestamped {
@@ -24,6 +27,11 @@ public class Board extends Timestamped {
     private User user;
     @OneToMany(mappedBy = "board", cascade =  CascadeType.REMOVE)
     private List<Comment> commentList = new ArrayList<>();
+    @Column(nullable = false)
+    @ColumnDefault("0")
+    private int likes;
+
+
 
     private Board(String title, String content, User author) {
         this.title = title;
@@ -46,5 +54,9 @@ public class Board extends Timestamped {
 
     public void addComment(Comment comment){
         this.commentList.add(comment);
+    }
+
+    public void updateLike (Boolean likeOrDislike){
+       this.likes = Boolean.TRUE.equals(likeOrDislike) ? this.likes + 1 : this.likes - 1;
     }
 }
