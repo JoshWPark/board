@@ -12,11 +12,12 @@
 
 
 ## ERD
-![image](https://user-images.githubusercontent.com/53467997/233940210-2e35008c-d5f3-4e2d-9627-ec4bf44d881d.png)
+![entityManagerFactory(EntityManagerFactoryBuilder, PersistenceManagedTypes)](https://user-images.githubusercontent.com/53467997/235303971-77e0834e-9cf7-420f-b3de-dec0924803c2.jpg)
+
 
 
 ## API
-![image](https://user-images.githubusercontent.com/53467997/234758485-14630d72-55e5-4856-9e53-e7d349e247ff.png)
+![image](https://user-images.githubusercontent.com/53467997/235303928-3aa31032-3b76-4640-a6e8-83636d1610dc.png)
 
 
 
