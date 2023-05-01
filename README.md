@@ -12,7 +12,7 @@
 
 
 ## ERD
-![entityManagerFactory(EntityManagerFactoryBuilder, PersistenceManagedTypes)](https://user-images.githubusercontent.com/53467997/235304006-6bc69664-9f6f-42bb-a408-31fe08868cdb.jpg)
+![image](https://user-images.githubusercontent.com/53467997/235457396-8f7c1c85-7a29-4eea-8795-71d82107254b.png)
 
 
 
