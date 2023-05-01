@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.util.Objects;
 
@@ -31,5 +32,4 @@ public class GlobalExceptionHandler {
 //    public BasicResponseDto methodError(Exception e){
 //        return BasicResponseDto.setBadRequest(e.getMessage(), );
 //    }
-
 }
