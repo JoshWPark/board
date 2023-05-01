@@ -12,7 +12,7 @@
 
 
 ## ERD
-![image](https://user-images.githubusercontent.com/53467997/235457396-8f7c1c85-7a29-4eea-8795-71d82107254b.png)
+![image](https://user-images.githubusercontent.com/53467997/235457679-26130754-98fd-48a9-bf1d-71478905fe3a.png)
 
 
 
