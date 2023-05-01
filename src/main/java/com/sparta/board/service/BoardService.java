@@ -4,6 +4,7 @@ import com.sparta.board.dto.board.BoardRequestDto;
 import com.sparta.board.dto.board.BoardResponseDto;
 import com.sparta.board.entity.Board;
 import com.sparta.board.entity.BoardLike;
+import com.sparta.board.entity.UserRoleEnum;
 import com.sparta.board.exception.CustomError;
 import com.sparta.board.util.CustomStatusMessage;
 import com.sparta.board.entity.User;
@@ -19,7 +20,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class BoardService extends SuperService{
+public class BoardService {
 
     private final BoardRepository boardRepository;
     private final BoardLikeRepository boardLikeRepository;
@@ -86,5 +87,24 @@ public class BoardService extends SuperService{
             boardLikeRepository.delete(boardLike);
             return CustomStatusMessage.UNLIKE_BOARD;
         }
+    }
+
+    private Board boardCheck(Long id, UserDetailsImpl userDetails, BoardRepository boardRepository){
+        Board board;
+        if(isAdmin(userDetails)){
+            board = boardRepository.findById(id).orElseThrow(
+                    ()-> new CustomError(CustomStatusMessage.BOARD_NOT_EXIST)
+            );
+        }
+        else {
+            board = boardRepository.findByIdAndUser(id, userDetails.getUser()).orElseThrow(
+                    () -> new CustomError(CustomStatusMessage.BOARD_NOT_EXIST_OR_WRONG_USER)
+            );
+        }
+        return board;
+    }
+
+    private boolean isAdmin (UserDetailsImpl userDetails){
+        return userDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(UserRoleEnum.ADMIN.getAuthority()));
     }
 }

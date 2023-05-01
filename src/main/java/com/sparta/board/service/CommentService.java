@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class CommentService extends SuperService{
+public class CommentService{
 
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
@@ -73,5 +73,24 @@ public class CommentService extends SuperService{
             commentLikeRepository.delete(commentLike);
             return CustomStatusMessage.UNLIKE_COMMENT;
         }
+    }
+
+    private Comment commentCheck(Long id, UserDetailsImpl userDetails, CommentRepository commentRepository){
+        Comment comment;
+        if(isAdmin(userDetails)){
+            comment = commentRepository.findById(id).orElseThrow(
+                    ()-> new CustomError(CustomStatusMessage.COMMENT_NOT_EXIST)
+            );
+        }
+        else {
+            comment = commentRepository.findByIdAndUser(id, userDetails.getUser()).orElseThrow(
+                    () -> new CustomError(CustomStatusMessage.COMMENT_NOT_EXIST_OR_WRONG_USER)
+            );
+        }
+        return comment;
+    }
+
+    private boolean isAdmin (UserDetailsImpl userDetails){
+        return userDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(UserRoleEnum.ADMIN.getAuthority()));
     }
 }
