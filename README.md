@@ -17,7 +17,7 @@
 
 
 ## API
-![image](https://user-images.githubusercontent.com/53467997/235303928-3aa31032-3b76-4640-a6e8-83636d1610dc.png)
+![image](https://user-images.githubusercontent.com/53467997/235422686-c04cbfd5-3de1-4b5f-9865-197b75449b25.png)
 
 
 
