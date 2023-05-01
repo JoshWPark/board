@@ -1,12 +1,12 @@
 package com.sparta.board.service;
 
 import com.sparta.board.dto.AuthRequestDto;
-import com.sparta.board.exception.CustomError;
-import com.sparta.board.util.CustomStatusMessage;
 import com.sparta.board.entity.User;
 import com.sparta.board.entity.UserRoleEnum;
+import com.sparta.board.exception.CustomError;
 import com.sparta.board.jwt.JwtUtil;
 import com.sparta.board.repository.UserRepository;
+import com.sparta.board.util.CustomStatusMessage;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

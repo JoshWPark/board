@@ -27,7 +27,8 @@ public enum CustomStatusMessage {
     BOARD_NOT_EXIST("해당 게시물은 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
     BOARD_NOT_EXIST_OR_WRONG_USER("해당 게시물이 존재하지 않거나 작성자만 삭제 / 수정 할 수 있습니다.", HttpStatus.BAD_REQUEST ),
     COMMENT_NOT_EXIST("해당 댓글은 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
-    COMMENT_NOT_EXIST_OR_WRONG_USER("해당 댓글이 존재하지 않거나 작성자만 삭제 / 수정 할 수 있습니다.", HttpStatus.BAD_REQUEST);
+    COMMENT_NOT_EXIST_OR_WRONG_USER("해당 댓글이 존재하지 않거나 작성자만 삭제 / 수정 할 수 있습니다.", HttpStatus.BAD_REQUEST),
+    AUTHORIZATION_ERROR("유효하지 않은 접근 방식입니다.", HttpStatus.BAD_REQUEST);
 
 
     private final String message;

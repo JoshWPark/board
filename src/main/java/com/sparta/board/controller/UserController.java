@@ -2,8 +2,8 @@ package com.sparta.board.controller;
 
 import com.sparta.board.dto.AuthRequestDto;
 import com.sparta.board.dto.BasicResponseDto;
-import com.sparta.board.util.CustomStatusMessage;
 import com.sparta.board.service.UserService;
+import com.sparta.board.util.CustomStatusMessage;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

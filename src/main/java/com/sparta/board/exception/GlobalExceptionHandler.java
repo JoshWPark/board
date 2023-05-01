@@ -1,12 +1,13 @@
 package com.sparta.board.exception;
 
 import com.sparta.board.dto.BasicResponseDto;
+import com.sparta.board.util.CustomStatusMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.util.Objects;
 
@@ -28,8 +29,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(BasicResponseDto.setBadRequest(e.getLocalizedMessage(), HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
     }
 
-//    @ExceptionHandler(Exception.class)
-//    public BasicResponseDto methodError(Exception e){
-//        return BasicResponseDto.setBadRequest(e.getMessage(), );
-//    }
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<?> authError(AuthenticationException e){
+        CustomStatusMessage customStatusMessage = CustomStatusMessage.AUTHORIZATION_ERROR;
+        return new ResponseEntity<>(BasicResponseDto.setBadRequest(customStatusMessage.getMessage(), customStatusMessage.getStatus()),
+                customStatusMessage.getStatus());
+    }
+
 }

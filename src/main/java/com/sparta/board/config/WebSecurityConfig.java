@@ -2,7 +2,7 @@ package com.sparta.board.config;
 
 
 import com.sparta.board.exception.CustomAccessDeniedHandler;
-import com.sparta.board.exception.CustomAuthenticationEntryPoint;
+import com.sparta.board.exception.DelegateAuthenticationEntryPoint;
 import com.sparta.board.jwt.JwtAuthFilter;
 import com.sparta.board.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +27,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig {
 
     private final JwtUtil jwtUtil;
-    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final DelegateAuthenticationEntryPoint delegateAuthenticationEntryPoint;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -61,7 +61,7 @@ public class WebSecurityConfig {
                 .and().addFilterBefore(new JwtAuthFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         // 401 Error 처리, Authorization, 인증과정에서 실패 할 시
-        http.exceptionHandling().authenticationEntryPoint(customAuthenticationEntryPoint);
+        http.exceptionHandling().authenticationEntryPoint(delegateAuthenticationEntryPoint);
         // 403 Error 처리, 인증과는 별개로 추가 적인 권한이 충족되지 않는 경우
         http.exceptionHandling().accessDeniedHandler(customAccessDeniedHandler);
 
