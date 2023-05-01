@@ -40,7 +40,8 @@ public class WebSecurityConfig {
     public WebSecurityCustomizer webSecurityCustomizer() {
         // h2-console 사용 및 resources 접근 허용 설정
         return web -> web.ignoring()
-                .requestMatchers(PathRequest.toH2Console());
+                .requestMatchers(PathRequest.toH2Console())
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**");
     }
 
 
@@ -51,15 +52,13 @@ public class WebSecurityConfig {
         // 기본 설정인 Session 방식은 사용하지 않고 JWT 방식을 사용하기 위한 설정
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        http.authorizeHttpRequests().requestMatchers("/board/signup").permitAll()
-                .requestMatchers("/board/login-page").permitAll()
-                .requestMatchers(HttpMethod.GET,"/board/post").permitAll()
-                .requestMatchers(HttpMethod.GET,"/board/post/{id}").permitAll()
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**").permitAll()
+        http.authorizeHttpRequests().requestMatchers(HttpMethod.POST,"/api/signup").permitAll()
+                .requestMatchers(HttpMethod.POST,"/api/login-page").permitAll()
+                .requestMatchers(HttpMethod.GET,"/api/all-posts").permitAll()
+                .requestMatchers(HttpMethod.GET,"/api/post/{id}").permitAll()
                 .anyRequest().authenticated()
                 // JWT 인증/인가를 사용하기 위한 설정
                 .and().addFilterBefore(new JwtAuthFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
-
 
         // 401 Error 처리, Authorization, 인증과정에서 실패 할 시
         http.exceptionHandling().authenticationEntryPoint(customAuthenticationEntryPoint);

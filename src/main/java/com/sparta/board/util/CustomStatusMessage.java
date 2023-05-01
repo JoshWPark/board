@@ -1,4 +1,4 @@
-package com.sparta.board.exception;
+package com.sparta.board.util;
 
 import org.springframework.http.HttpStatus;
 

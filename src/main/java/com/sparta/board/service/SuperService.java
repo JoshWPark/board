@@ -2,7 +2,8 @@ package com.sparta.board.service;
 
 import com.sparta.board.entity.Board;
 import com.sparta.board.entity.Comment;
-import com.sparta.board.entity.StatusErrorMessageEnum;
+import com.sparta.board.exception.CustomError;
+import com.sparta.board.util.CustomStatusMessage;
 import com.sparta.board.entity.UserRoleEnum;
 import com.sparta.board.repository.BoardRepository;
 import com.sparta.board.repository.CommentRepository;
@@ -20,12 +21,12 @@ public class SuperService {
         Comment comment;
         if(isAdmin(userDetails)){
             comment = commentRepository.findById(id).orElseThrow(
-                    ()-> new NullPointerException(StatusErrorMessageEnum.COMMENT_NOT_EXIST.getMessage())
+                    ()-> new CustomError(CustomStatusMessage.COMMENT_NOT_EXIST)
             );
         }
         else {
             comment = commentRepository.findByIdAndUser(id, userDetails.getUser()).orElseThrow(
-                    () -> new NullPointerException(StatusErrorMessageEnum.COMMENT_NOT_EXIST_OR_WRONG_USER.getMessage())
+                    () -> new CustomError(CustomStatusMessage.COMMENT_NOT_EXIST_OR_WRONG_USER)
             );
         }
         return comment;
@@ -35,12 +36,12 @@ public class SuperService {
         Board board;
         if(isAdmin(userDetails)){
             board = boardRepository.findById(id).orElseThrow(
-                    ()-> new NullPointerException(StatusErrorMessageEnum.COMMENT_NOT_EXIST.getMessage())
+                    ()-> new CustomError(CustomStatusMessage.BOARD_NOT_EXIST)
             );
         }
         else {
             board = boardRepository.findByIdAndUser(id, userDetails.getUser()).orElseThrow(
-                    () -> new NullPointerException(StatusErrorMessageEnum.COMMENT_NOT_EXIST_OR_WRONG_USER.getMessage())
+                    () -> new CustomError(CustomStatusMessage.BOARD_NOT_EXIST_OR_WRONG_USER)
             );
         }
         return board;

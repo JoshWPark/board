@@ -4,7 +4,8 @@ import com.sparta.board.dto.board.BoardRequestDto;
 import com.sparta.board.dto.board.BoardResponseDto;
 import com.sparta.board.entity.Board;
 import com.sparta.board.entity.BoardLike;
-import com.sparta.board.entity.StatusErrorMessageEnum;
+import com.sparta.board.exception.CustomError;
+import com.sparta.board.util.CustomStatusMessage;
 import com.sparta.board.entity.User;
 import com.sparta.board.repository.BoardLikeRepository;
 import com.sparta.board.repository.BoardRepository;
@@ -41,7 +42,7 @@ public class BoardService extends SuperService{
     //특정 게시물 조회
     public BoardResponseDto getBoard(Long id){
         Board board = boardRepository.findById(id).orElseThrow(
-                () -> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST.getMessage())
+                () -> new CustomError(CustomStatusMessage.BOARD_NOT_EXIST)
         );
         return new BoardResponseDto(board);
     }
@@ -59,31 +60,31 @@ public class BoardService extends SuperService{
 
     //게시물 삭제
     @Transactional
-    public String deleteBoard(Long id, UserDetailsImpl userDetails){
+    public CustomStatusMessage deleteBoard(Long id, UserDetailsImpl userDetails){
         Board board = boardCheck(id,userDetails,boardRepository);
 
         boardRepository.delete(board);
 
-        return StatusErrorMessageEnum.DELETE_BOARD.getMessage();
+        return CustomStatusMessage.DELETE_BOARD;
 
     }
 
     @Transactional
-    public String updateLikeBoard(Long id,UserDetailsImpl userDetails){
+    public CustomStatusMessage updateLikeBoard(Long id, UserDetailsImpl userDetails){
         Board board = boardRepository.findById(id).orElseThrow(
-                () -> new NullPointerException(StatusErrorMessageEnum.BOARD_NOT_EXIST.getMessage())
+                () -> new CustomError(CustomStatusMessage.BOARD_NOT_EXIST)
         );
         if(boardLikeRepository.findByBoardAndUser(board, userDetails.getUser()) == null){
 
             boardLikeRepository.saveAndFlush(BoardLike.updateLike(board, userDetails));
             board.updateLike(true);
-            return StatusErrorMessageEnum.LIKE_BOARD.getMessage();
+            return CustomStatusMessage.LIKE_BOARD;
         }
         else{
             BoardLike boardLike = boardLikeRepository.findByBoardAndUser(board, userDetails.getUser());
             board.updateLike(false);
             boardLikeRepository.delete(boardLike);
-            return StatusErrorMessageEnum.UNLIKE_BOARD.getMessage();
+            return CustomStatusMessage.UNLIKE_BOARD;
         }
     }
 }

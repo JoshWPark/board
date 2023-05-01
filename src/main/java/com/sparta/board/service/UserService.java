@@ -1,7 +1,8 @@
 package com.sparta.board.service;
 
 import com.sparta.board.dto.AuthRequestDto;
-import com.sparta.board.entity.StatusErrorMessageEnum;
+import com.sparta.board.exception.CustomError;
+import com.sparta.board.util.CustomStatusMessage;
 import com.sparta.board.entity.User;
 import com.sparta.board.entity.UserRoleEnum;
 import com.sparta.board.jwt.JwtUtil;
@@ -24,39 +25,39 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public String signup(AuthRequestDto requestDto) {
+    public CustomStatusMessage signup(AuthRequestDto requestDto) {
         String password = passwordEncoder.encode(requestDto.getPassword());
 
         // 회원 중복 확인
         Optional<User> found = userRepository.findByUsername(requestDto.getUsername());
         if (found.isPresent()) {
-            throw new IllegalArgumentException(StatusErrorMessageEnum.USER_EXIST.getMessage());
+            throw new CustomError(CustomStatusMessage.USER_EXIST);
         }
 
         // 사용자 ROLE 확인
         UserRoleEnum role = (requestDto.isAdmin()) ? UserRoleEnum.ADMIN : UserRoleEnum.USER;
         if (!requestDto.getAdminToken().equals(ADMIN_TOKEN)) {
-            throw new IllegalArgumentException(StatusErrorMessageEnum.WRONG_ADMIN_KEY.getMessage());
+            throw new CustomError(CustomStatusMessage.WRONG_ADMIN_KEY);
         }
 
 
         // 사용자 DB에 저장
         userRepository.saveAndFlush(User.saveUser(requestDto.getUsername(),password,role));
-        return StatusErrorMessageEnum.SUCCESS_SIGNUP.getMessage();
+        return CustomStatusMessage.SUCCESS_SIGNUP;
     }
 
     @Transactional(readOnly = true)
-    public String login(AuthRequestDto requestDto, HttpServletResponse response) {
+    public CustomStatusMessage login(AuthRequestDto requestDto, HttpServletResponse response) {
         // 사용자 확인
         User user = userRepository.findByUsername(requestDto.getUsername()).orElseThrow(
-                () -> new NullPointerException(StatusErrorMessageEnum.USER_NOT_EXIST.getMessage())
+                () -> new CustomError(CustomStatusMessage.USER_NOT_EXIST)
         );
         // 비밀번호 확인
         if(!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())){
-            throw  new IllegalArgumentException(StatusErrorMessageEnum.WRONG_PASSWORD.getMessage());
+            throw  new CustomError(CustomStatusMessage.WRONG_PASSWORD);
         }
 
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUsername(), user.getRole()));
-        return StatusErrorMessageEnum.SUCCESS_LOGIN.getMessage();
+        return CustomStatusMessage.SUCCESS_LOGIN;
     }
 }

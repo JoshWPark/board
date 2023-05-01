@@ -2,8 +2,7 @@ package com.sparta.board.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.board.dto.BasicResponseDto;
-import com.sparta.board.entity.StatusCode;
-import com.sparta.board.entity.StatusErrorMessageEnum;
+import com.sparta.board.util.CustomStatusMessage;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,7 +29,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String token = jwtUtil.resolveToken(request);
         if(token != null) {
             if(!jwtUtil.validateToken(token)){
-                jwtExceptionHandler(response, StatusErrorMessageEnum.TOKEN_ERROR.getMessage(), StatusCode.BAD_REQUEST);
+                jwtExceptionHandler(response, CustomStatusMessage.TOKEN_ERROR);
                 return;
             }
             Claims info = jwtUtil.getUserInfoFromToken(token);
@@ -49,11 +48,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         SecurityContextHolder.setContext(context);
     }
 
-    public void jwtExceptionHandler(HttpServletResponse response, String msg, StatusCode statusCode) {
-        response.setStatus(statusCode.getStatusCode());
+    public void jwtExceptionHandler(HttpServletResponse response, CustomStatusMessage customStatusMessage) {
+        response.setStatus(customStatusMessage.getStatus().value());
         response.setContentType("application/json; charset=utf8");
         try {
-            String json = new ObjectMapper().writeValueAsString(BasicResponseDto.setBadRequest(msg, statusCode));
+            String json = new ObjectMapper().writeValueAsString(BasicResponseDto.setBadRequest(customStatusMessage.getMessage(), customStatusMessage.getStatus()));
             response.getWriter().write(json);
         } catch (Exception e) {
             log.error(e.getMessage());
