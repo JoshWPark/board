@@ -2,9 +2,11 @@ package com.sparta.board.jwt;
 
 
 import com.sparta.board.dto.TokenDto;
+import com.sparta.board.entity.RefreshToken;
 import com.sparta.board.entity.User;
 import com.sparta.board.entity.UserRoleEnum;
 import com.sparta.board.exception.CustomError;
+import com.sparta.board.repository.RefreshTokenRepository;
 import com.sparta.board.repository.UserRepository;
 import com.sparta.board.security.UserDetailsServiceImpl;
 import com.sparta.board.util.CustomStatusMessage;
@@ -42,6 +44,7 @@ public class JwtUtil {
     private static final long REFRESH_TOKEN_TIME = 60 * 60 *100L; //RefreshToken Time 1 hr
     private final UserDetailsServiceImpl userDetailsService;
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Value("${jwt.secret.key}")
     private String secretKey;
@@ -114,17 +117,20 @@ public class JwtUtil {
         //1차 토큰 검증
         if(!validateToken(token)) return false;
 
-        //DB에 저장한 토큰 비교
         //사용자 찾기
-        Optional<User> user = userRepository.findByUsername(getUserInfoFromToken(token).getSubject());
+        User user = userRepository.findByUsername(getUserInfoFromToken(token)).orElseThrow(
+                () -> new CustomError(CustomStatusMessage.USER_NOT_EXIST)
+        );
+        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByUser(user);
+
         // 사용자의 Refresh 토큰 가져오기
-        return user.isPresent() && token.equals(user.get().getRefreshToken().substring(7));
+        return refreshToken.isPresent() && token.equals(refreshToken.get().getRefreshToken().substring(7));
 
     }
 
     // 토큰에서 사용자 정보 가져오기
-    public Claims getUserInfoFromToken(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+    public String getUserInfoFromToken(String token) {
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
     }
 
     // 인증 객체 생성
