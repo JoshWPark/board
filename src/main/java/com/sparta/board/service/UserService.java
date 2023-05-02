@@ -1,6 +1,7 @@
 package com.sparta.board.service;
 
 import com.sparta.board.dto.AuthRequestDto;
+import com.sparta.board.dto.TokenDto;
 import com.sparta.board.entity.User;
 import com.sparta.board.entity.UserRoleEnum;
 import com.sparta.board.exception.CustomError;
@@ -46,7 +47,7 @@ public class UserService {
         return CustomStatusMessage.SUCCESS_SIGNUP;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public CustomStatusMessage login(AuthRequestDto requestDto, HttpServletResponse response) {
         // 사용자 확인
         User user = userRepository.findByUsername(requestDto.getUsername()).orElseThrow(
@@ -57,7 +58,15 @@ public class UserService {
             throw  new CustomError(CustomStatusMessage.WRONG_PASSWORD);
         }
 
-        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUsername(), user.getRole()));
+        //Token 생성
+        TokenDto tokenDto = jwtUtil.createAllToken(user.getUsername(), user.getRole());
+
+        //User 객체에 Refresh Token 추가/업데이트
+        user.addRefreshToken(tokenDto.getRefreshToken());
+
+        //header에 accesstoken, refreshtoken 추가
+        response.addHeader(JwtUtil.ACCESS_TOKEN, tokenDto.getAccessToken());
+        response.addHeader(JwtUtil.REFRESH_TOKEN, tokenDto.getRefreshToken());
         return CustomStatusMessage.SUCCESS_LOGIN;
     }
 }

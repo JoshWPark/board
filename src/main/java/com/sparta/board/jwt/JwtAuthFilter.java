@@ -2,6 +2,9 @@ package com.sparta.board.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.board.dto.BasicResponseDto;
+import com.sparta.board.entity.User;
+import com.sparta.board.exception.CustomError;
+import com.sparta.board.repository.UserRepository;
 import com.sparta.board.util.CustomStatusMessage;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -16,24 +19,47 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        String token = jwtUtil.resolveToken(request);
-        if(token != null) {
-            if(!jwtUtil.validateToken(token)){
-                jwtExceptionHandler(response, CustomStatusMessage.TOKEN_ERROR);
-                return;
+        String accessToken = jwtUtil.resolveToken(request, JwtUtil.ACCESS_TOKEN);
+        String refreshToken = jwtUtil.resolveToken(request, JwtUtil.REFRESH_TOKEN);
+        if(accessToken != null) {
+            //Access 토큰 유효 시, security context에 인증 정보 저장
+            if(jwtUtil.validateToken(accessToken)){
+                setAuthentication(jwtUtil.getUserInfoFromToken(accessToken).getSubject());
             }
-            Claims info = jwtUtil.getUserInfoFromToken(token);
-            setAuthentication(info.getSubject());
+            // Access 토큰 만료
+            else if (refreshToken != null) {
+                // Refresh 토큰 유효
+                if (Boolean.TRUE.equals(jwtUtil.validateRefreshToken(refreshToken))){
+                    String username = jwtUtil.getUserInfoFromToken(refreshToken).getSubject();
+                    User user = userRepository.findByUsername(username).orElseThrow(
+                            () -> new CustomError(CustomStatusMessage.USER_NOT_EXIST)
+                    );
+                    //new accessToken 발급
+                    String newAccessToken = jwtUtil.createToken(username, user.getRole(), JwtUtil.ACCESS_TOKEN);
+                    //헤더에 새로운 Access 토큰 넣기
+                    response.setHeader(JwtUtil.ACCESS_TOKEN,newAccessToken);
+                    //Security context에 인증 정보 저장
+                    String newToken = newAccessToken.substring(7);
+                    setAuthentication(jwtUtil.getUserInfoFromToken(newToken).getSubject());
+                    System.out.println("새로운 토큰 생성 완료");
+                }
+                //Access & Refresh 토큰 만료시
+                else {
+                    throw new CustomError(CustomStatusMessage.TOKEN_ERROR);
+                }
+            }
         }
         filterChain.doFilter(request,response);
     }
@@ -43,17 +69,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         Authentication authentication = jwtUtil.createAuthentication(username);
         context.setAuthentication(authentication);
         SecurityContextHolder.setContext(context);
-    }
-
-    public void jwtExceptionHandler(HttpServletResponse response, CustomStatusMessage customStatusMessage) {
-        response.setStatus(customStatusMessage.getStatus().value());
-        response.setContentType("application/json; charset=utf8");
-        try {
-            String json = new ObjectMapper().writeValueAsString(BasicResponseDto.setBadRequest(customStatusMessage.getMessage(), customStatusMessage.getStatus()));
-            response.getWriter().write(json);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-        }
     }
 
 }

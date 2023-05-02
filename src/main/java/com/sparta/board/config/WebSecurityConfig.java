@@ -5,6 +5,7 @@ import com.sparta.board.exception.CustomAccessDeniedHandler;
 import com.sparta.board.exception.DelegateAuthenticationEntryPoint;
 import com.sparta.board.jwt.JwtAuthFilter;
 import com.sparta.board.jwt.JwtUtil;
+import com.sparta.board.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +28,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig {
 
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final DelegateAuthenticationEntryPoint delegateAuthenticationEntryPoint;
 
@@ -58,7 +60,7 @@ public class WebSecurityConfig {
                 .requestMatchers(HttpMethod.GET,"/api/post/{id}").permitAll()
                 .anyRequest().authenticated()
                 // JWT 인증/인가를 사용하기 위한 설정
-                .and().addFilterBefore(new JwtAuthFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                .and().addFilterBefore(new JwtAuthFilter(jwtUtil, userRepository), UsernamePasswordAuthenticationFilter.class);
 
         // 401 Error 처리, Authorization, 인증과정에서 실패 할 시
         http.exceptionHandling().authenticationEntryPoint(delegateAuthenticationEntryPoint);

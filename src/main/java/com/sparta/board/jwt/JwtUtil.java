@@ -1,8 +1,13 @@
 package com.sparta.board.jwt;
 
 
+import com.sparta.board.dto.TokenDto;
+import com.sparta.board.entity.User;
 import com.sparta.board.entity.UserRoleEnum;
+import com.sparta.board.exception.CustomError;
+import com.sparta.board.repository.UserRepository;
 import com.sparta.board.security.UserDetailsServiceImpl;
+import com.sparta.board.util.CustomStatusMessage;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
@@ -20,17 +25,23 @@ import org.springframework.util.StringUtils;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Optional;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtUtil {
 
-    public static final String AUTHORIZATION_HEADER = "Authorization";
-    public static final String AUTHORIZATION_KEY = "auth";
+    private static final String AUTHORIZATION_KEY = "auth";
     private static final String BEARER_PREFIX = "Bearer ";
-    private static final long TOKEN_TIME = 60 * 60 * 1000L;
+
+    public static final String ACCESS_TOKEN = "Access_Token";
+    public static final String REFRESH_TOKEN = "Refresh_Token";
+
+    private static final long ACCESS_TOKEN_TIME = 1 * 60 * 1000L;   //AccessToken Time 1 min
+    private static final long REFRESH_TOKEN_TIME = 60 * 60 *100L; //RefreshToken Time 1 hr
     private final UserDetailsServiceImpl userDetailsService;
+    private final UserRepository userRepository;
 
     @Value("${jwt.secret.key}")
     private String secretKey;
@@ -44,23 +55,37 @@ public class JwtUtil {
     }
 
     // header 토큰을 가져오기
-    public String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
-            return bearerToken.substring(7);
+    public String resolveToken(HttpServletRequest request, String type) {
+        if(type.equals(ACCESS_TOKEN)){
+            String bearerToken = request.getHeader(ACCESS_TOKEN);
+            if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
+                return bearerToken.substring(7);
+            }
+            return null;
         }
-        return null;
+        else {
+            String bearerToken = request.getHeader(REFRESH_TOKEN);
+            if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
+                return bearerToken.substring(7);
+            }
+            return null;
+        }
+    }
+
+    public TokenDto createAllToken(String username, UserRoleEnum role){
+        return new TokenDto(createToken(username,role,ACCESS_TOKEN), createToken(username,role,REFRESH_TOKEN));
     }
 
     // 토큰 생성
-    public String createToken(String username, UserRoleEnum role) {
+    public String createToken(String username, UserRoleEnum role, String token) {
         Date date = new Date();
+        long time = token.equals(ACCESS_TOKEN) ? ACCESS_TOKEN_TIME : REFRESH_TOKEN_TIME;
 
         return BEARER_PREFIX +
                 Jwts.builder()
                         .setSubject(username)
                         .claim(AUTHORIZATION_KEY, role)
-                        .setExpiration(new Date(date.getTime() + TOKEN_TIME))
+                        .setExpiration(new Date(date.getTime() + time))
                         .setIssuedAt(date)
                         .signWith(key, signatureAlgorithm)
                         .compact();
@@ -81,6 +106,20 @@ public class JwtUtil {
             log.info("JWT claims is empty, 잘못된 JWT 토큰 입니다.");
         }
         return false;
+    }
+
+    //RefreshToken 검증
+    //DB에 저장돼 있는 토큰과 비교
+    public Boolean validateRefreshToken(String token) {
+        //1차 토큰 검증
+        if(!validateToken(token)) return false;
+
+        //DB에 저장한 토큰 비교
+        //사용자 찾기
+        Optional<User> user = userRepository.findByUsername(getUserInfoFromToken(token).getSubject());
+        // 사용자의 Refresh 토큰 가져오기
+        return user.isPresent() && token.equals(user.get().getRefreshToken().substring(7));
+
     }
 
     // 토큰에서 사용자 정보 가져오기

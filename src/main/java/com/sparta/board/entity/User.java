@@ -18,6 +18,8 @@ public class User {
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
+    @Column
+    private String refreshToken;
 
 
     private User(String username, String password, UserRoleEnum role) {
@@ -28,5 +30,11 @@ public class User {
 
     public static User saveUser(String username, String password, UserRoleEnum role){
         return new User(username, password, role);
+    }
+
+    public void addRefreshToken(String token){
+        System.out.println(token);
+        System.out.println("Here");
+        this.refreshToken = token;
     }
 }
